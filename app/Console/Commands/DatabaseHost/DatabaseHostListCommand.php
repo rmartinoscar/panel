@@ -16,6 +16,7 @@ class DatabaseHostListCommand extends Command
                 'id' => $databaseHost->id,
                 'name' => $databaseHost->name,
                 'host' => $databaseHost->host,
+                'alias' => $databaseHost->alias,
                 'port' => $databaseHost->port,
                 'username' => $databaseHost->username,
                 'maxDatabases' => $databaseHost->max_databases,
@@ -26,7 +27,7 @@ class DatabaseHostListCommand extends Command
         if ($this->option('format') === 'json') {
             $this->output->write($databaseHosts->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
         } else {
-            $this->table(['ID', 'Name', 'Host', 'Port', 'Username', 'Max Databases', 'Node id'], $databaseHosts->toArray());
+            $this->table(['ID', 'Name', 'Host', 'Alias', 'Port', 'Username', 'Max Databases', 'Node id'], $databaseHosts->toArray());
         }
 
         $this->output->newLine();

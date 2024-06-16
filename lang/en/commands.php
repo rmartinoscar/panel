@@ -23,6 +23,7 @@ return [
     'make_databasehost' => [
         'name' => 'Enter a short identifier used to distinguish this database host from others',
         'host' => 'Enter an ip address to be used for connecting to the mysql host',
+        'alias' => 'Enter an alias to identify the database host',
         'port' => 'Enter the database host port',
         'username' => 'Enter the database host username',
         'password' => 'Enter the database host password',

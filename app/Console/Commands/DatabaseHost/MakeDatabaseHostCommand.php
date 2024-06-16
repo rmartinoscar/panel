@@ -10,6 +10,7 @@ class MakeDatabaseHostCommand extends Command
     protected $signature = 'p:databasehost:make
                             {--name= : A name to identify the database host.}
                             {--host= : The IP address that the database host should connect to create new databases}
+                            {--alias= : Enter the database host alias.}
                             {--port= : Enter the database host port.}
                             {--username= : Enter the database host username.}
                             {--password= : Enter the database host password.}
@@ -34,6 +35,7 @@ class MakeDatabaseHostCommand extends Command
     {
         $data['name'] = $this->option('name') ?? $this->ask(__('commands.make_databasehost.name'));
         $data['host'] = $this->option('host') ?? $this->ask(__('commands.make_databasehost.host'));
+        $data['alias'] = $this->option('alias') ?? $this->ask(__('commands.make_databasehost.alias'), '');
         $data['port'] = $this->option('port') ?? $this->ask(__('commands.make_databasehost.port'), '3306');
         $data['username'] = $this->option('username') ?? $this->ask(__('commands.make_databasehost.username'));
         $data['password'] = $this->option('password') ?? $this->secret(__('commands.make_databasehost.password'));
