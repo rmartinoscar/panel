@@ -26,7 +26,7 @@ class ActivityLogTransformer extends BaseClientTransformer
             'batch' => $model->batch,
             'event' => $model->event,
             'is_api' => !is_null($model->api_key_id),
-            'ip' => $this->canViewIP($model->actor) ? $model->ip : null,
+            'ip' => $this->canViewIP($model->actor) || Str::startsWith($model->event, 'auth') ? $model->ip : null,
             'description' => $model->description,
             'properties' => $this->properties($model),
             'has_additional_metadata' => $this->hasAdditionalMetadata($model),
