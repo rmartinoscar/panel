@@ -78,7 +78,7 @@ class AllocationsRelationManager extends RelationManager
                             ->datalist($this->getOwnerRecord()->ipAddresses())
                             ->label('IP Address')
                             ->inlineLabel()
-                            ->ipv4()
+                            ->ip()
                             ->helperText("Usually your machine's public IP unless you are port forwarding.")
                             ->required(),
                         TextInput::make('allocation_alias')
