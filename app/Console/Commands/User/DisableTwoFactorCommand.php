@@ -26,7 +26,7 @@ class DisableTwoFactorCommand extends Command
         $search = $this->option('user') ?? $this->ask(trans('command/messages.user.search_users'));
         Assert::notEmpty($search, 'Search term should be an email address, got: %s.');
         $results = User::query()
-            ->where('id', 'LIKE', "$search%")
+            ->where('id', 'LIKE', "$search")
             ->orWhere('username', 'LIKE', "$search%")
             ->orWhere('email', 'LIKE', "$search%")
             ->get();
