@@ -136,7 +136,7 @@ class InfoCommand extends Command
             ['Domain', $this->sanitize(env('SESSION_DOMAIN'))],
             ['Path', env('SESSION_PATH')],
             ['Encrypt', env('SESSION_ENCRYPT') ? 'Yes' : $this->formatText('No', 'bg=red')],
-            ['Secure', env('SESSION_SECURE_COOKIE') ? 'Yes' : $this->formatText('No', 'bg=red')]
+            ['Secure', env('SESSION_SECURE_COOKIE') ? 'Yes' : $this->formatText('No', 'bg=red')],
         ], 'compact');
 
         $this->output->title('Features Configuration');
