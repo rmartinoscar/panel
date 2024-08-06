@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\NodeResource\Widgets;
+namespace App\Filament\Resources\NodeResource\Widgets\Global;
 
 use App\Models\Node;
 use Carbon\Carbon;
@@ -8,7 +8,7 @@ use Filament\Support\RawJs;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Model;
 
-class NodeCpuChart extends ChartWidget
+class NodeMemoryChart extends ChartWidget
 {
     protected static ?string $pollingInterval = '5s';
     protected static ?string $maxHeight = '300px';
@@ -19,12 +19,10 @@ class NodeCpuChart extends ChartWidget
     {
         /** @var Node $node */
         $node = $this->record;
-        $threads = $node->systemInformation()['cpu_count'] ?? 0;
 
-        $cpu = collect(cache()->get("nodes.$node->id.cpu_percent"))
-            ->slice(-10)
+        $memUsed = collect(cache()->get("nodes.$node->id.memory_used"))->slice(-10)
             ->map(fn ($value, $key) => [
-                'cpu' => number_format($value * $threads, 2),
+                'memory' => config('panel.use_binary_prefix') ? $value / 1024 / 1024 / 1024 : $value / 1000 / 1000 / 1000,
                 'timestamp' => Carbon::createFromTimestamp($key, (auth()->user()->timezone ?? 'UTC'))->format('H:i:s'),
             ])
             ->all();
@@ -32,7 +30,7 @@ class NodeCpuChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'data' => array_column($cpu, 'cpu'),
+                    'data' => array_column($memUsed, 'memory'),
                     'backgroundColor' => [
                         'rgba(96, 165, 250, 0.3)',
                     ],
@@ -40,7 +38,7 @@ class NodeCpuChart extends ChartWidget
                     'fill' => true,
                 ],
             ],
-            'labels' => array_column($cpu, 'timestamp'),
+            'labels' => array_column($memUsed, 'timestamp'),
         ];
     }
 
@@ -71,11 +69,17 @@ class NodeCpuChart extends ChartWidget
     {
         /** @var Node $node */
         $node = $this->record;
-        $threads = $node->systemInformation()['cpu_count'] ?? 0;
+        $latestMemoryUsed = collect(cache()->get("nodes.$node->id.memory_used"))->last();
+        $totalMemory = collect(cache()->get("nodes.$node->id.memory_total"))->last();
 
-        $cpu = number_format(collect(cache()->get("nodes.$node->id.cpu_percent"))->last() * $threads, 2);
-        $max = number_format($threads * 100) . '%';
+        $used = config('panel.use_binary_prefix')
+            ? number_format($latestMemoryUsed / 1024 / 1024 / 1024, 2) .' GiB'
+            : number_format($latestMemoryUsed / 1000 / 1000 / 1000, 2) . ' GB';
 
-        return 'CPU - ' . $cpu . '% Of ' . $max;
+        $total = config('panel.use_binary_prefix')
+            ? number_format($totalMemory / 1024 / 1024 / 1024, 2) .' GiB'
+            : number_format($totalMemory / 1000 / 1000 / 1000, 2) . ' GB';
+
+        return 'Memory - ' . $used . ' Of ' . $total;
     }
 }

@@ -63,9 +63,12 @@ class EditNode extends EditRecord
                                         ->label('Kernel')
                                         ->content(fn (Node $node) => $node->systemInformation()['kernel_version'] ?? 'Unknown'),
                                 ]),
-                            View::make('filament.components.node-cpu-chart')->columnSpan(3),
-                            View::make('filament.components.node-memory-chart')->columnSpan(3),
-                            // TODO: Make purdy View::make('filament.components.node-storage-chart')->columnSpan(3),
+                            View::make('filament.components.global.node-cpu-chart')->columnSpan(2),
+                            View::make('filament.components.global.node-memory-chart')->columnSpan(2),
+                            View::make('filament.components.global.node-storage-chart')->columnSpan(2),
+                            View::make('filament.components.allocated.node-cpu-chart')->columnSpan(2),
+                            View::make('filament.components.allocated.node-memory-chart')->columnSpan(2),
+                            View::make('filament.components.allocated.node-storage-chart')->columnSpan(2),
                         ]),
                     Tab::make('Basic Settings')
                         ->icon('tabler-server')
