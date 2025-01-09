@@ -300,10 +300,10 @@ class ListFiles extends ListRecords
                                 ->default('tar.gz')
                                 ->required(),
                         ])
-                        ->action(function (File $file, DaemonFileRepository $fileRepository) use ($server) {
+                        ->action(function ($data, File $file, DaemonFileRepository $fileRepository) use ($server) {
                             $fileRepository
                                 ->setServer($server)
-                                ->compressFiles($this->path, [$file->name]);
+                                ->compressFiles($this->path, [$file->name], $data['name'], $data['format']);
 
                             Activity::event('server:file.compress')
                                 ->property('directory', $this->path)
@@ -411,13 +411,13 @@ class ListFiles extends ListRecords
                                 ->default('tar.gz')
                                 ->required(),
                         ])
-                        ->action(function (Collection $files, DaemonFileRepository $fileRepository) use ($server) {
+                        ->action(function ($data, Collection $files, DaemonFileRepository $fileRepository) use ($server) {
                             // @phpstan-ignore-next-line
                             $files = $files->map(fn ($file) => $file->name)->toArray();
 
                             $fileRepository
                                 ->setServer($server)
-                                ->compressFiles($this->path, $files);
+                                ->compressFiles($this->path, $files, $data['name'], $data['format']);
 
                             Activity::event('server:file.compress')
                                 ->property('directory', $this->path)
