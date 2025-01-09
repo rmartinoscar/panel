@@ -13,6 +13,7 @@ use App\Repositories\Daemon\DaemonFileRepository;
 use App\Services\Nodes\NodeJWTService;
 use App\Filament\Components\Tables\Columns\BytesColumn;
 use App\Filament\Components\Tables\Columns\DateTimeColumn;
+use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action as HeaderAction;
 use Filament\Facades\Filament;
@@ -282,6 +283,23 @@ class ListFiles extends ListRecords
                         ->authorize(fn () => auth()->user()->can(Permission::ACTION_FILE_ARCHIVE, $server))
                         ->label('Archive')
                         ->icon('tabler-archive')
+                        ->form([
+                            TextInput::make('name')
+                                ->label('Archive name')
+                                ->default(fn () => 'archive-' . str(Carbon::now()->toRfc3339String())->replace(':', '')->before('+0000') . 'Z'),
+                            Select::make('format')
+                                ->label('Archive format')
+                                ->options([
+                                    'zip' => 'ZIP',
+                                    'tar' => 'TAR',
+                                    'tar.gz' => 'TAR.GZ',
+                                    'tar.bz2' => 'TAR.BZ2',
+                                    'rar' => 'RAR',
+                                ])
+                                ->selectablePlaceholder(false)
+                                ->default('tar.gz')
+                                ->required(),
+                        ])
                         ->action(function (File $file, DaemonFileRepository $fileRepository) use ($server) {
                             $fileRepository
                                 ->setServer($server)
@@ -375,6 +393,24 @@ class ListFiles extends ListRecords
                         }),
                     BulkAction::make('archive')
                         ->authorize(fn () => auth()->user()->can(Permission::ACTION_FILE_ARCHIVE, $server))
+                        ->form([
+                            TextInput::make('name')
+                                ->label('Archive name')
+                                ->default(fn () => 'archive-' . str(Carbon::now()->toRfc3339String())->replace(':', '')->before('+0000') . 'Z'),
+                            Select::make('format')
+                                ->label('Archive format')
+                                ->native(false)
+                                ->options([
+                                    'zip' => 'ZIP',
+                                    'tar' => 'TAR',
+                                    'tar.gz' => 'TAR.GZ',
+                                    'tar.bz2' => 'TAR.BZ2',
+                                    'rar' => 'RAR',
+                                ])
+                                ->selectablePlaceholder(false)
+                                ->default('tar.gz')
+                                ->required(),
+                        ])
                         ->action(function (Collection $files, DaemonFileRepository $fileRepository) use ($server) {
                             // @phpstan-ignore-next-line
                             $files = $files->map(fn ($file) => $file->name)->toArray();
