@@ -30,7 +30,7 @@ class TurnstileProvider extends CaptchaProvider
     {
         return array_merge(parent::getSettingsForm(), [
             Toggle::make('CAPTCHA_TURNSTILE_VERIFY_DOMAIN')
-                ->label(trans('admin/setting.captcha.verify'))
+                ->label(trans('admin/setting.captcha.verify.domain'))
                 ->columnSpan(2)
                 ->inline(false)
                 ->onIcon('tabler-check')
@@ -38,6 +38,24 @@ class TurnstileProvider extends CaptchaProvider
                 ->onColor('success')
                 ->offColor('danger')
                 ->default(env('CAPTCHA_TURNSTILE_VERIFY_DOMAIN', true)),
+            Toggle::make('CAPTCHA_TURNSTILE_VERIFY_IP')
+                ->label(trans('admin/setting.captcha.verify.ip'))
+                ->columnSpan(2)
+                ->inline(false)
+                ->onIcon('tabler-check')
+                ->offIcon('tabler-x')
+                ->onColor('success')
+                ->offColor('danger')
+                ->default(env('CAPTCHA_TURNSTILE_VERIFY_IP', true)),
+            Toggle::make('CAPTCHA_TURNSTILE_VERIFY_IDEMPOTENCY')
+                ->label(trans('admin/setting.captcha.verify.idempotency'))
+                ->columnSpan(2)
+                ->inline(false)
+                ->onIcon('tabler-check')
+                ->offIcon('tabler-x')
+                ->onColor('success')
+                ->offColor('danger')
+                ->default(env('CAPTCHA_TURNSTILE_VERIFY_IDEMPOTENCY', true)),
             Placeholder::make('info')
                 ->label(trans('admin/setting.captcha.info_label'))
                 ->columnSpan(2)
@@ -63,23 +81,51 @@ class TurnstileProvider extends CaptchaProvider
     {
         $captchaResponse ??= request()->get('cf-turnstile-response');
 
-        if (!$secret = env('CAPTCHA_TURNSTILE_SECRET_KEY')) {
+        $secret = env('CAPTCHA_TURNSTILE_SECRET_KEY');
+
+        if (!$secret) {
             throw new Exception('Turnstile secret key is not defined.');
         }
 
-        $response = Http::asJson()
-            ->timeout(15)
-            ->connectTimeout(5)
-            ->throw()
-            ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-                'secret' => $secret,
-                'response' => $captchaResponse,
-            ]);
+        $url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
-        return count($response->json()) ? $response->json() : [
-            'success' => false,
-            'message' => 'Unknown error occurred, please try again',
+        $data = [
+            'secret' => $secret,
+            'response' => $captchaResponse,
         ];
+
+        if (env('CAPTCHA_TURNSTILE_VERIFY_IP', true)) {
+            $data['remoteip'] = request()->ip();
+        }
+
+        if (env('CAPTCHA_TURNSTILE_VERIFY_IDEMPOTENCY', true)) {
+            $data['idempotency_key'] = str()->uuid();
+        }
+
+        $firstOutcome = Http::asJson()
+            ->timeout(config('panel.guzzle.timeout'))
+            ->connectTimeout(config('panel.guzzle.connect_timeout'))
+            ->post($url, $data)
+            ->json();
+
+        if (env('CAPTCHA_TURNSTILE_VERIFY_IDEMPOTENCY', true)) {
+            $subsequentOutcome = Http::asJson()
+                ->timeout(config('panel.guzzle.timeout'))
+                ->connectTimeout(config('panel.guzzle.connect_timeout'))
+                ->post($url, $data)
+                ->json();
+
+            if ($firstOutcome['success'] && $subsequentOutcome['success']) {
+                return $subsequentOutcome;
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Unknown error occurred, please try again',
+            ];
+        }
+
+        return $firstOutcome;
     }
 
     public function verifyDomain(string $hostname, ?string $requestUrl = null): bool
@@ -88,7 +134,7 @@ class TurnstileProvider extends CaptchaProvider
             return true;
         }
 
-        $requestUrl ??= request()->url;
+        $requestUrl ??= request()->url();
         $requestUrl = parse_url($requestUrl);
 
         return $hostname === array_get($requestUrl, 'host');

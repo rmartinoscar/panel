@@ -40,7 +40,11 @@ return [
         'info' => 'You can generate the keys on your <u><a href="https://developers.cloudflare.com/turnstile/get-started/#get-a-sitekey-and-secret-key" target="_blank">Cloudflare Dashboard</a></u>. A Cloudflare account is required.',
         'site_key' => 'Site Key',
         'secret_key' => 'Secret Key',
-        'verify' => 'Verify Domain?',
+        'verify' => [
+            'domain' => 'Verify Domain?',
+            'ip' => 'Verify Ip Address?',
+            'idempotency' => 'Verify Idempotency?',
+        ],
     ],
     'mail' => [
         'mail_driver' => 'Mail Driver',
