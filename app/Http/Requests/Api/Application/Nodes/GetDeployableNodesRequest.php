@@ -8,8 +8,8 @@ class GetDeployableNodesRequest extends GetNodesRequest
     {
         return [
             'page' => 'integer',
-            'memory' => 'required|integer|min:0',
-            'disk' => 'required|integer|min:0',
+            'memory' => 'sometimes|integer|min:0',
+            'disk' => 'sometimes|integer|min:0',
             'cpu' => 'sometimes|integer|min:0',
             'tags' => 'sometimes|array',
 
