@@ -167,7 +167,7 @@ class Server extends Model implements Validatable
         'status' => ['nullable', 'string'],
         'memory' => ['required', 'numeric', 'min:0'],
         'swap' => ['required', 'numeric', 'min:-1'],
-        'io' => ['required', 'numeric', 'between:0,1000'],
+        'io' => ['sometimes', 'numeric', 'between:0,1000'],
         'cpu' => ['required', 'numeric', 'min:0'],
         'threads' => ['nullable', 'regex:/^[0-9-,]+$/'],
         'oom_killer' => ['sometimes', 'boolean'],
@@ -177,9 +177,9 @@ class Server extends Model implements Validatable
         'startup' => ['required', 'string'],
         'skip_scripts' => ['sometimes', 'boolean'],
         'image' => ['required', 'string', 'max:255'],
-        'database_limit' => ['present', 'nullable', 'integer', 'min:0'],
+        'database_limit' => ['sometimes', 'nullable', 'integer', 'min:0'],
         'allocation_limit' => ['sometimes', 'nullable', 'integer', 'min:0'],
-        'backup_limit' => ['present', 'nullable', 'integer', 'min:0'],
+        'backup_limit' => ['sometimes', 'nullable', 'integer', 'min:0'],
     ];
 
     protected function casts(): array
