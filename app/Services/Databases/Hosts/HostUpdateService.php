@@ -21,7 +21,7 @@ class HostUpdateService
     /**
      * Update a database host and persist to the database.
      *
-     * @param  array<mixed>  $data
+     * @param  mixed[]  $data
      *
      * @throws \Throwable
      */

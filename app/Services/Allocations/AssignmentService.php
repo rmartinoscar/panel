@@ -33,7 +33,7 @@ class AssignmentService
      * Insert allocations into the database and link them to a specific node.
      *
      * @param  array{allocation_ip: string, allocation_ports: array<int|string>}  $data
-     * @return array<int>
+     * @return int[]
      *
      * @throws \App\Exceptions\DisplayException
      * @throws \App\Exceptions\Service\Allocation\CidrOutOfRangeException

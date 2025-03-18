@@ -37,7 +37,7 @@ class TasksRelationManager extends RelationManager
     }
 
     /**
-     * @return array<Field>
+     * @return Field[]
      */
     private function getTaskForm(Schedule $schedule): array
     {

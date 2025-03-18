@@ -330,7 +330,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * Otherwise it calls the Authorizable trait's parent method
      *
      * @param  iterable<string|\BackedEnum>|\BackedEnum|string  $abilities
-     * @param  array<mixed>|mixed  $arguments
+     * @param  mixed[]|mixed  $arguments
      */
     public function can($abilities, mixed $arguments = []): bool
     {

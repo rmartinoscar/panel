@@ -15,7 +15,7 @@ class EggController extends ApplicationApiController
      *
      * Return all eggs
      *
-     * @return array<mixed>
+     * @return mixed[]
      */
     public function index(GetEggsRequest $request): array
     {
@@ -29,7 +29,7 @@ class EggController extends ApplicationApiController
      *
      * Return a single egg that exists
      *
-     * @return array<mixed>
+     * @return mixed[]
      */
     public function view(GetEggRequest $request, Egg $egg): array
     {

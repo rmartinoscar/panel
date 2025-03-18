@@ -186,7 +186,7 @@ class DaemonFileRepository extends DaemonRepository
     /**
      * Pulls a file from the given URL and saves it to the disk.
      *
-     * @param  array<mixed>  $params
+     * @param  mixed[]  $params
      *
      * @throws ConnectionException
      */

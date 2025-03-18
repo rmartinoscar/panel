@@ -8,7 +8,7 @@ use App\Models\WebhookConfiguration;
 class DispatchWebhooks
 {
     /**
-     * @param  array<mixed>  $data
+     * @param  mixed[]  $data
      */
     public function handle(string $eventName, array $data): void
     {

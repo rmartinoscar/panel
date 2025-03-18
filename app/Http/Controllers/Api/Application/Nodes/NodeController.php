@@ -34,7 +34,7 @@ class NodeController extends ApplicationApiController
      *
      * Return all the nodes currently available on the Panel.
      *
-     * @return array<mixed>
+     * @return mixed[]
      */
     public function index(GetNodesRequest $request): array
     {
@@ -53,7 +53,7 @@ class NodeController extends ApplicationApiController
      *
      * Return data for a single instance of a node.
      *
-     * @return array<mixed>
+     * @return mixed[]
      */
     public function view(GetNodeRequest $request, Node $node): array
     {
@@ -89,7 +89,7 @@ class NodeController extends ApplicationApiController
      *
      * Update an existing node on the Panel.
      *
-     * @return array<mixed>
+     * @return mixed[]
      *
      * @throws \Throwable
      */

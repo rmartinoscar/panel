@@ -49,7 +49,7 @@ class Settings extends Page implements HasForms
 
     protected static string $view = 'filament.pages.settings';
 
-    /** @var array<mixed>|null */
+    /** @var mixed[]|null */
     public ?array $data = [];
 
     public function mount(): void

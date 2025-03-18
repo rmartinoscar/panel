@@ -239,7 +239,7 @@ class Handler extends ExceptionHandler
      * Return the exception as a JSONAPI representation for use on API requests.
      *
      * @param  array{detail?: mixed, source?: mixed, meta?: mixed}  $override
-     * @return array{errors?: array<mixed>}
+     * @return array{errors?: mixed[]}
      */
     protected function convertExceptionToArray(Throwable $e, array $override = []): array
     {
@@ -289,7 +289,7 @@ class Handler extends ExceptionHandler
      * Helper method to allow reaching into the handler to convert an exception
      * into the expected array response type.
      *
-     * @return array<mixed>
+     * @return mixed[]
      */
     public static function toArray(\Throwable $e): array
     {

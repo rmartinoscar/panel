@@ -296,7 +296,7 @@ class Node extends Model implements Validatable
         return true;
     }
 
-    /** @return array<mixed> */
+    /** @return mixed[] */
     public function systemInformation(): array
     {
         return once(function () {

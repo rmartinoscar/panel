@@ -28,7 +28,7 @@ class HostCreationService
      *     port: int,
      *     username: string,
      *     max_databases: int,
-     *     node_ids?: array<int>
+     *     node_ids?: int[]
      * } $data
      *
      * @throws \Throwable

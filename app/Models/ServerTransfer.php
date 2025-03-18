@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $new_node
  * @property int $old_allocation
  * @property int $new_allocation
- * @property array<int>|null $old_additional_allocations array of allocation.id's
- * @property array<int>|null $new_additional_allocations array of allocation.id's
+ * @property int[]|null $old_additional_allocations array of allocation.id's
+ * @property int[]|null $new_additional_allocations array of allocation.id's
  * @property bool|null $successful
  * @property bool $archived
  * @property \Carbon\Carbon $created_at

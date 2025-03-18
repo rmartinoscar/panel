@@ -885,7 +885,7 @@ class CreateServer extends CreateRecord
 
     /**
      * @param  string[]  $portEntries
-     * @return array<int>
+     * @return int[]
      */
     public static function retrieveValidPorts(Node $node, array $portEntries, string $ip): array
     {

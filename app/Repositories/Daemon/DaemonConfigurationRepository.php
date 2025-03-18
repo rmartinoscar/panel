@@ -11,7 +11,7 @@ class DaemonConfigurationRepository extends DaemonRepository
     /**
      * Returns system information from the daemon instance.
      *
-     * @return array<mixed>
+     * @return mixed[]
      *
      * @throws ConnectionException
      */

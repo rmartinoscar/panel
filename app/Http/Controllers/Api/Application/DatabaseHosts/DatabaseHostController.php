@@ -32,7 +32,7 @@ class DatabaseHostController extends ApplicationApiController
      *
      * Return all the database hosts currently registered on the Panel.
      *
-     * @return array<mixed>
+     * @return mixed[]
      */
     public function index(GetDatabaseHostRequest $request): array
     {
@@ -51,7 +51,7 @@ class DatabaseHostController extends ApplicationApiController
      *
      * Return a single database host.
      *
-     * @return array<mixed>
+     * @return mixed[]
      */
     public function view(GetDatabaseHostRequest $request, DatabaseHost $databaseHost): array
     {
@@ -87,7 +87,7 @@ class DatabaseHostController extends ApplicationApiController
      *
      * Update a database host on the Panel and return the updated record to the user.
      *
-     * @return array<mixed>
+     * @return mixed[]
      *
      * @throws \Throwable
      */

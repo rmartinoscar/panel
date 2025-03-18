@@ -16,7 +16,7 @@ class ExternalUserController extends ApplicationApiController
      *
      * Retrieve a specific user from the database using their external ID.
      *
-     * @return array<mixed>
+     * @return mixed[]
      */
     public function index(GetExternalUserRequest $request, string $externalId): array
     {

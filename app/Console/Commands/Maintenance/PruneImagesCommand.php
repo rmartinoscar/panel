@@ -18,8 +18,8 @@ class PruneImagesCommand extends Command
         $node = $this->argument('node');
 
         if (empty($node)) {
+            /** @var Node[] $nodes */
             $nodes = Node::all();
-            /** @var Node $node */
             foreach ($nodes as $node) {
                 $this->cleanupImages($node);
             }

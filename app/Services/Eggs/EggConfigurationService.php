@@ -20,7 +20,7 @@ class EggConfigurationService
      * @return array{
      *     startup: array{done: string[], user_interaction: string[], strip_ansi: bool},
      *     stop: array{type: string, value: string},
-     *     configs: array<mixed>
+     *     configs: mixed[]
      * }
      */
     public function handle(Server $server): array
@@ -81,7 +81,7 @@ class EggConfigurationService
     }
 
     /**
-     * @return array<mixed>
+     * @return mixed[]
      */
     protected function replacePlaceholders(Server $server, object $configs): array
     {
@@ -188,7 +188,7 @@ class EggConfigurationService
      * the value of the line match is something iterable, continue iterating, otherwise perform
      * a match & replace.
      *
-     * @param  array<mixed>  $structure
+     * @param  mixed[]  $structure
      */
     private function iterate(mixed $data, array $structure): mixed
     {

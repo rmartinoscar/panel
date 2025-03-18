@@ -78,8 +78,8 @@ class BuildModificationService
      * Process the allocations being assigned in the data and ensure they are available for a server.
      *
      * @param array{
-     *     add_allocations?: array<int>,
-     *     remove_allocations?: array<int>,
+     *     add_allocations?: int[],
+     *     remove_allocations?: int[],
      *     allocation_id?: int,
      *     oom_killer?: bool,
      *     oom_disabled?: bool,
