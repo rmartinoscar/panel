@@ -77,6 +77,20 @@ class DaemonServerRepository extends DaemonRepository
     }
 
     /**
+     * Sends a command or multiple commands to a running server instance.
+     *
+     * @param  string[]|string  $command
+     *
+     * @throws ConnectionException
+     */
+    public function command(array|string $command): void
+    {
+        $this->getHttpClient()->post("/api/servers/{$this->server->uuid}/commands", [
+            'commands' => is_array($command) ? $command : [$command],
+        ]);
+    }
+
+    /**
      * Sends a power action to the server instance.
      *
      * @throws ConnectionException

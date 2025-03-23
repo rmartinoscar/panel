@@ -6,8 +6,8 @@ use App\Http\Controllers\Api\Client\Servers\CommandController;
 use App\Http\Requests\Api\Client\Servers\SendCommandRequest;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\Response;
-use App\Models\Server;
 use App\Models\Permission;
+use App\Repositories\Daemon\DaemonServerRepository;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use App\Tests\Integration\Api\Client\ClientApiIntegrationTestCase;
@@ -52,13 +52,19 @@ class CommandControllerTest extends ClientApiIntegrationTestCase
      */
     public function test_command_can_send_to_server(): void
     {
+        $service = \Mockery::mock(DaemonServerRepository::class);
+        $this->app->instance(DaemonServerRepository::class, $service);
+
         [$user, $server] = $this->generateTestAccount([Permission::ACTION_CONTROL_CONSOLE]);
 
-        $server = \Mockery::mock($server)->makePartial();
-
-        $this->instance(Server::class, $server);
-
-        $server->expects('send')->with('say Test')->andReturn(new GuzzleResponse());
+        $service->expects('setServer')
+            ->with(\Mockery::on(function ($value) use ($server) {
+                return $server->uuid === $value->uuid;
+            }))
+            ->andReturnSelf()
+            ->getMock()
+            ->expects('command')
+            ->with('say Test');
 
         $request = new SendCommandRequest(['command' => 'say Test']);
         $cc = resolve(CommandController::class);
@@ -74,12 +80,20 @@ class CommandControllerTest extends ClientApiIntegrationTestCase
      */
     public function test_error_is_returned_when_server_is_offline(): void
     {
+        $service = \Mockery::mock(DaemonServerRepository::class);
+        $this->app->instance(DaemonServerRepository::class, $service);
+
         [$user, $server] = $this->generateTestAccount();
 
-        $server = \Mockery::mock($server)->makePartial();
-        $server->expects('send')->andThrows(new ConnectionException(previous: new BadResponseException('', new Request('GET', 'test'), new GuzzleResponse(Response::HTTP_BAD_GATEWAY))));
-
-        $this->instance(Server::class, $server);
+        $service->expects('setServer')
+            ->with(\Mockery::on(function ($value) use ($server) {
+                return $server->uuid === $value->uuid;
+            }))
+            ->andReturnSelf()
+            ->getMock()
+            ->expects('command')
+            ->with('say Test')
+            ->andThrows(new ConnectionException(previous: new BadResponseException('', new Request('GET', 'test'), new GuzzleResponse(Response::HTTP_BAD_GATEWAY))));
 
         $request = new SendCommandRequest(['command' => 'say Test']);
         $cc = resolve(CommandController::class);

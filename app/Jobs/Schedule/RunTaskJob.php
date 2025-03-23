@@ -53,14 +53,15 @@ class RunTaskJob extends Job implements ShouldQueue
             return;
         }
 
+        $repository = $repository->setServer($server);
         // Perform the provided task against the daemon.
         try {
             switch ($this->task->action) {
                 case Task::ACTION_POWER:
-                    $repository->setServer($server)->power($this->task->payload);
+                    $repository->power($this->task->payload);
                     break;
                 case Task::ACTION_COMMAND:
-                    $server->send($this->task->payload);
+                    $repository->command($this->task->payload);
                     break;
                 case Task::ACTION_BACKUP:
                     $backupService->setIgnoredFiles(explode(PHP_EOL, $this->task->payload))->handle($server, null, true);

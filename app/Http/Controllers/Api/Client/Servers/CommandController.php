@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\BadResponseException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Http\Controllers\Api\Client\ClientApiController;
 use App\Http\Requests\Api\Client\Servers\SendCommandRequest;
+use App\Repositories\Daemon\DaemonServerRepository;
 use Dedoc\Scramble\Attributes\Group;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
@@ -16,6 +17,14 @@ use Illuminate\Http\Client\ConnectionException;
 #[Group('Server', weight: 1)]
 class CommandController extends ClientApiController
 {
+    /**
+     * CommandController constructor.
+     */
+    public function __construct(private DaemonServerRepository $repository)
+    {
+        parent::__construct();
+    }
+
     /**
      * Send command
      *
@@ -26,7 +35,7 @@ class CommandController extends ClientApiController
     public function index(SendCommandRequest $request, Server $server): Response
     {
         try {
-            $server->send($request->input('command'));
+            $this->repository->setServer($server)->command($request->input('command'));
         } catch (Exception $exception) {
             $previous = $exception->getPrevious();
 

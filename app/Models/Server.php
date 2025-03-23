@@ -13,13 +13,10 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Number;
-use Psr\Http\Message\ResponseInterface;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -421,20 +418,6 @@ class Server extends Model implements Validatable
         ) {
             throw new ServerStateConflictException($this);
         }
-    }
-
-    /**
-     * Sends a command or multiple commands to a running server instance.
-     *
-     * @param  string[]|string  $command
-     *
-     * @throws ConnectionException
-     */
-    public function send(array|string $command): ResponseInterface
-    {
-        return Http::daemon($this->node)->post("/api/servers/{$this->uuid}/commands", [
-            'commands' => is_array($command) ? $command : [$command],
-        ])->toPsrResponse();
     }
 
     public function retrieveStatus(): ContainerStatus
