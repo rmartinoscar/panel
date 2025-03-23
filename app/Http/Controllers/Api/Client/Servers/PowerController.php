@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Client\Servers;
 use Illuminate\Http\Response;
 use App\Models\Server;
 use App\Facades\Activity;
-use App\Repositories\Daemon\DaemonPowerRepository;
+use App\Repositories\Daemon\DaemonServerRepository;
 use App\Http\Controllers\Api\Client\ClientApiController;
 use App\Http\Requests\Api\Client\Servers\SendPowerRequest;
 use Dedoc\Scramble\Attributes\Group;
@@ -16,7 +16,7 @@ class PowerController extends ClientApiController
     /**
      * PowerController constructor.
      */
-    public function __construct(private DaemonPowerRepository $repository)
+    public function __construct(private DaemonServerRepository $repository)
     {
         parent::__construct();
     }
@@ -28,9 +28,7 @@ class PowerController extends ClientApiController
      */
     public function index(SendPowerRequest $request, Server $server): Response
     {
-        $this->repository->setServer($server)->send(
-            $request->input('signal')
-        );
+        $this->repository->setServer($server)->power($request->input('signal'));
 
         Activity::event(strtolower("server:power.{$request->input('signal')}"))->log();
 

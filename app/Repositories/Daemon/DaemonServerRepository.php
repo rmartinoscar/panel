@@ -77,6 +77,18 @@ class DaemonServerRepository extends DaemonRepository
     }
 
     /**
+     * Sends a power action to the server instance.
+     *
+     * @throws ConnectionException
+     */
+    public function power(string $action): void
+    {
+        $this->getHttpClient()->post("/api/servers/{$this->server->uuid}/power",
+            ['action' => $action],
+        );
+    }
+
+    /**
      * Reinstall a server on the daemon.
      *
      * @throws ConnectionException
