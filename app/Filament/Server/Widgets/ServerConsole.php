@@ -7,6 +7,7 @@ use App\Livewire\AlertBanner;
 use App\Models\Permission;
 use App\Models\Server;
 use App\Models\User;
+use App\Repositories\Daemon\DaemonServerRepository;
 use App\Services\Nodes\NodeJWTService;
 use App\Services\Servers\GetUserPermissionsService;
 use Filament\Widgets\Widget;
@@ -36,10 +37,13 @@ class ServerConsole extends Widget
 
     private NodeJWTService $nodeJWTService;
 
-    public function boot(GetUserPermissionsService $getUserPermissionsService, NodeJWTService $nodeJWTService): void
+    private DaemonServerRepository $repository;
+
+    public function boot(GetUserPermissionsService $getUserPermissionsService, NodeJWTService $nodeJWTService, DaemonServerRepository $repository): void
     {
         $this->getUserPermissionsService = $getUserPermissionsService;
         $this->nodeJWTService = $nodeJWTService;
+        $this->repository = $repository;
     }
 
     protected function getToken(): string
@@ -95,7 +99,8 @@ class ServerConsole extends Widget
     public function enter(): void
     {
         if (!empty($this->input) && $this->canSendCommand()) {
-            $this->dispatch('sendServerCommand', command: $this->input);
+
+            $this->repository->setServer($this->server)->command($this->input);
 
             $this->history = Arr::prepend($this->history, $this->input);
             $this->historyIndex = -1;

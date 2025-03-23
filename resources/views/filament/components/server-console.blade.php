@@ -89,15 +89,14 @@
         terminal.attachCustomKeyEventHandler((event) => {
             if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
                 document.execCommand('copy'); // navigator.clipboard.writeText() only works on ssl..
-                return false;
             } else if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
                 event.preventDefault();
                 searchAddonBar.show();
-                return false;
             } else if (event.key === 'Escape') {
                 searchAddonBar.hidden();
+                return true;
             }
-            return true;
+            return false;
         });
 
         const TERMINAL_PRELUDE = '\u001b[1m\u001b[33mpelican@' + '{{ \Filament\Facades\Filament::getTenant()->name }}' + ' ~ \u001b[0m';
@@ -159,29 +158,10 @@
             $wire.dispatchSelf('token-request');
         };
 
-        Livewire.on('setServerState', ({ state, uuid }) => {
-            const serverUuid = "{{ $this->server->uuid }}";
-            if (uuid !== serverUuid) {
-                return;
-            }
-
-            socket.send(JSON.stringify({
-                'event': 'set state',
-                'args': [state]
-            }));
-        });
-
         $wire.on('sendAuthRequest', ({ token }) => {
             socket.send(JSON.stringify({
                 'event': 'auth',
                 'args': [token]
-            }));
-        });
-
-        $wire.on('sendServerCommand', ({ command }) => {
-            socket.send(JSON.stringify({
-                'event': 'send command',
-                'args': [command]
             }));
         });
     </script>

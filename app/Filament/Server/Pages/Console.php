@@ -12,6 +12,7 @@ use App\Filament\Server\Widgets\ServerOverview;
 use App\Livewire\AlertBanner;
 use App\Models\Permission;
 use App\Models\Server;
+use App\Repositories\Daemon\DaemonServerRepository;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
@@ -98,23 +99,25 @@ class Console extends Page
         /** @var Server $server */
         $server = Filament::getTenant();
 
+        $repository = (new DaemonServerRepository())->setServer($server);
+
         return [
             Action::make('start')
                 ->color('primary')
                 ->size(ActionSize::ExtraLarge)
-                ->action(fn () => $this->dispatch('setServerState', state: 'start', uuid: $server->uuid))
+                ->action(fn () => $repository->power('start'))
                 ->authorize(fn () => auth()->user()->can(Permission::ACTION_CONTROL_START, $server))
                 ->disabled(fn () => $server->isInConflictState() || !$this->status->isStartable()),
             Action::make('restart')
                 ->color('gray')
                 ->size(ActionSize::ExtraLarge)
-                ->action(fn () => $this->dispatch('setServerState', state: 'restart', uuid: $server->uuid))
+                ->action(fn () => $repository->power('restart'))
                 ->authorize(fn () => auth()->user()->can(Permission::ACTION_CONTROL_RESTART, $server))
                 ->disabled(fn () => $server->isInConflictState() || !$this->status->isRestartable()),
             Action::make('stop')
                 ->color('danger')
                 ->size(ActionSize::ExtraLarge)
-                ->action(fn () => $this->dispatch('setServerState', state: 'stop', uuid: $server->uuid))
+                ->action(fn () => $repository->power('stop'))
                 ->authorize(fn () => auth()->user()->can(Permission::ACTION_CONTROL_STOP, $server))
                 ->hidden(fn () => $this->status->isStartingOrStopping() || $this->status->isKillable())
                 ->disabled(fn () => $server->isInConflictState() || !$this->status->isStoppable()),
@@ -125,7 +128,7 @@ class Console extends Page
                 ->modalDescription('This can result in data corruption and/or data loss!')
                 ->modalSubmitActionLabel('Kill Server')
                 ->size(ActionSize::ExtraLarge)
-                ->action(fn () => $this->dispatch('setServerState', state: 'kill', uuid: $server->uuid))
+                ->action(fn () => $repository->power('kill'))
                 ->authorize(fn () => auth()->user()->can(Permission::ACTION_CONTROL_STOP, $server))
                 ->hidden(fn () => $server->isInConflictState() || !$this->status->isKillable()),
         ];
