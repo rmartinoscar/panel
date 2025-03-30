@@ -10,6 +10,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 
 /**
+ * @property string|null $type
+ * @property string|null $payload
  * @property string $endpoint
  * @property string $description
  * @property string[] $events
@@ -27,15 +29,25 @@ class WebhookConfiguration extends Model
     ];
 
     protected $fillable = [
+        'type',
+        'payload',
         'endpoint',
         'description',
         'events',
     ];
 
+    /**
+     * Default values for specific fields in the database.
+     */
+    protected $attributes = [
+        'type' => 'standalone',
+    ];
+
     protected function casts(): array
     {
         return [
-            'events' => 'json',
+            'events' => 'array',
+            'payload' => 'string',
         ];
     }
 

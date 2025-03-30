@@ -25,12 +25,26 @@ class ProcessWebhook implements ShouldQueue
 
     public function handle(): void
     {
+        $data = $this->data[0];
+        if ($this->webhookConfiguration->type === 'discord') {
+            $data = json_decode($data, true);
+
+            $tmp = preg_replace_callback(
+                '/{{(.*?)}}/',
+                fn ($matches) => array_get($data, $matches[1], $matches[1]),
+                $this->webhookConfiguration->payload
+            );
+
+            $data = json_decode($tmp, true);
+        }
+
         try {
             Http::withHeader('X-Webhook-Event', $this->eventName)
-                ->post($this->webhookConfiguration->endpoint, $this->data)
+                ->post($this->webhookConfiguration->endpoint, $data)
                 ->throw();
             $successful = now();
-        } catch (\Exception) {
+        } catch (\Exception $exception) {
+            report($exception);
             $successful = null;
         }
 
