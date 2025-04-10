@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\WebhookResource\Pages;
+use App\Filament\Admin\Resources\WebhookResource\Pages\EditWebhookConfiguration;
 use App\Livewire\AlertBanner;
 use App\Models\WebhookConfiguration;
 use Filament\Forms\Components\Checkbox;
@@ -21,19 +22,26 @@ use Filament\Support\Colors\Color;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Set;
 use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ReplicateAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+use Livewire\Component;
+use Livewire\Features\SupportEvents\HandlesEvents;
 
 class WebhookResource extends Resource
 {
+    use HandlesEvents;
+
     protected static ?string $model = WebhookConfiguration::class;
+
+    protected static ?WebhookConfiguration $clone = null;
 
     protected static ?string $navigationIcon = 'tabler-webhook';
 
@@ -73,13 +81,13 @@ class WebhookResource extends Resource
     {
         return $table
             ->columns([
-
                 IconColumn::make('type')
                     ->icon(fn ($state) => $state === 'standalone' ? 'tabler-world-www' : 'tabler-brand-discord')
                     ->color(fn ($state) => $state === 'standalone' ? null : Color::hex('#5865F2')),
                 TextColumn::make('endpoint')
                     ->label(trans('admin/webhook.table.endpoint'))
                     ->wrap()
+                    ->formatStateUsing(fn ($state) => str($state)->after('//'))
                     ->limit(60),
                 TextColumn::make('description')
                     ->label(trans('admin/webhook.table.description')),
@@ -88,7 +96,15 @@ class WebhookResource extends Resource
                 ViewAction::make()
                     ->hidden(fn ($record) => static::canEdit($record)),
                 EditAction::make(),
-                DeleteAction::make(),
+                ReplicateAction::make()
+                    ->iconButton()
+                    ->tooltip(trans('filament-actions::replicate.single.label'))
+                    ->modal(false)
+                    ->excludeAttributes(['created_at', 'updated_at'])
+                    ->beforeReplicaSaved(function (WebhookConfiguration $record, WebhookConfiguration $replica) {
+                        $replica->description = $record->description . ' Copy ' . now()->format('Y-m-d H:i:s');
+                    })
+                    ->successRedirectUrl(fn (WebhookConfiguration $replica) => EditWebhookConfiguration::getUrl(['record' => $replica])),
             ])
             ->groupedBulkActions([
                 DeleteBulkAction::make(),
@@ -144,7 +160,14 @@ class WebhookResource extends Resource
                 Section::make('Discord')
                     ->hidden(fn (Get $get) => $get('type') === 'standalone')
                     ->dehydratedWhenHidden()
-                    ->schema(fn () => self::getDiscordFields()),
+                    ->schema(fn () => self::getDiscordFields())
+                    ->view('filament.components.section')
+                    ->viewData([
+                        'record' => self::getClonedModel(),
+                        'pollingInterval' => null,
+                    ])
+                    ->aside()
+                    ->formBefore(),
                 Section::make('Events')
                     ->collapsible()->collapsed()
                     ->schema([
@@ -169,16 +192,26 @@ class WebhookResource extends Resource
                 ->collapsible()
                 ->schema([
                     TextInput::make('username')
-                        ->label('Username'),
+                        ->label('Username')
+                        ->afterStateUpdated(function ($state, $livewire) {
+                            self::getClonedModel(['username' => $state], $livewire);
+                        }),
                     TextInput::make('avatar_url')
-                        ->label('Avatar Url'),
+                        ->label('Avatar Url')
+                        ->afterStateUpdated(function ($state, $livewire) {
+                            self::getClonedModel(['avatar_url' => $state], $livewire);
+                        }),
                 ]),
             Section::make('Message')
                 ->collapsible()
                 ->schema([
                     TextInput::make('content')
                         ->label('Message')
-                        ->required(fn (Get $get) => empty($get('embeds'))),
+                        ->live()
+                        ->required(fn (Get $get) => empty($get('embeds')))
+                        ->afterStateUpdated(function ($state, $livewire) {
+                            self::getClonedModel(['content' => $state], $livewire);
+                        }),
                     TextInput::make('thread_name')
                         ->label('Forum Thread Name'),
                     CheckboxList::make('flags')
@@ -204,13 +237,17 @@ class WebhookResource extends Resource
                 ->itemLabel(fn (array $state) => $state['title'])
                 ->addActionLabel('Add embed')
                 ->required(fn (Get $get) => $get('../messages.needstobeastringhere.content') === '')
-                ->grid()
+                ->afterStateUpdated(function (array $state, $livewire) {
+                    self::getClonedModel($state, $livewire);
+                })
+                // ->grid()
                 ->reorderable()
                 ->collapsible()
                 ->maxItems(10)
                 ->schema([
                     Section::make('Author')
-                        ->collapsible()->collapsed()
+                        ->collapsible()
+                        ->collapsed()
                         ->schema([
                             TextInput::make('author.name')
                                 ->label('Author')
@@ -221,7 +258,8 @@ class WebhookResource extends Resource
                                 ->label('Author Icon URL'),
                         ]),
                     Section::make('Body')
-                        ->collapsible()->collapsed()
+                        ->collapsible()
+                        ->collapsed()
                         ->schema([
                             TextInput::make('title')
                                 ->label('Title')
@@ -236,7 +274,8 @@ class WebhookResource extends Resource
                                 ->label('URL'),
                         ]),
                     Section::make('Images')
-                        ->collapsible()->collapsed()
+                        ->collapsible()
+                        ->collapsed()
                         ->schema([
                             TextInput::make('image.url')
                                 ->label('Image URL'),
@@ -244,10 +283,10 @@ class WebhookResource extends Resource
                                 ->label('Thumbnail URL'),
                         ]),
                     Section::make('Footer')
-                        ->collapsible()->collapsed()
+                        ->collapsible()
+                        ->collapsed()
                         ->schema([
                             TextInput::make('footer.text')
-                                ->required(true)
                                 ->label('Footer'),
                             /* TextInput::make('timestamp')
                                 ->label('Timestamp')
@@ -277,6 +316,29 @@ class WebhookResource extends Resource
                         ]),
                 ]),
         ];
+    }
+
+    /** @param array<string, mixed> $data */
+    public static function getClonedModel(?array $data = null, ?Component $livewire = null): WebhookConfiguration
+    {
+        $model = self::$model::first();
+
+        if (!$data) {
+            return self::$clone ?? $model;
+        }
+
+        if (self::$clone) {
+            self::$clone->update($data);
+        } else {
+            self::$clone = $model->replicate()->fill($data);
+            self::$clone->save();
+        }
+
+        // dump(collect(self::$clone->getChanges())->except(['updated_at'])->all());
+
+        $livewire->dispatch('updateData', self::$clone->toArray());
+
+        return self::$clone;
     }
 
     public static function getPages(): array

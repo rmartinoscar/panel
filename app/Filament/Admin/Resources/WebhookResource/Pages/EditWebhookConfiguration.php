@@ -20,9 +20,9 @@ class EditWebhookConfiguration extends EditRecord
     protected function getHeaderWidgets(): array
     {
         return [
-            DiscordPreview::make([
+            /* DiscordPreview::make([
                 'record' => $this->getRecord(),
-            ]),
+            ]), */
         ];
     }
 

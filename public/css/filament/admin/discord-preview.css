@@ -1,5 +1,5 @@
 :root {
-    --discord-embed-background-color: ##23272A;
+    --discord-embed-background-color: #23272A;
     --discord-tag-color: #5865f2;
     --discord-timestamp-color: #949ba4;
     --discord-text-color: #dbdee1;
@@ -12,12 +12,16 @@
     --discord-avatar-height: 40px;
 }
 
-a {
+.link {
     color: var(--discord-link-color);
 }
 
-a:hover {
+.link:hover {
     text-decoration: underline;
+}
+
+img:hover {
+    cursor: pointer !important;
 }
 
 .sender .avatar {
@@ -81,9 +85,10 @@ a:hover {
     margin-right: var(--discord-avatar-margin-right);
 }
 
-.thumbnail {
+/* .thumbnail {
     margin-left: var(--discord-thumbnail-margin-left);
 }
+ */
 
 .description,
 .field-value {

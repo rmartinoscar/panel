@@ -4,20 +4,84 @@ namespace App\Filament\Admin\Widgets;
 
 use App\Models\Server;
 use App\Models\WebhookConfiguration;
-use Filament\Actions\Action;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Arr;
-use Illuminate\Support\HtmlString;
+use Livewire\Attributes\Locked;
 
 class DiscordPreview extends Widget
 {
+    /**
+     * @var array<string, mixed> | null
+     */
+    protected ?array $cachedData = null;
+
+    #[Locked]
+    public ?string $dataChecksum = null;
+
+    /**
+     * @var view-string
+     */
     protected static string $view = 'filament.admin.widgets.discord-preview';
+
+    public static ?string $pollingInterval = null;
 
     protected static bool $isLazy = false;
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 1;
 
     public WebhookConfiguration $record;
+
+    /* public static function canView(): bool
+    {
+        return isset($this->record);
+    } */
+
+    public function mount(): void
+    {
+        $this->dataChecksum = $this->generateDataChecksum();
+    }
+
+    protected function generateDataChecksum(): string
+    {
+        return md5(json_encode($this->getCachedData()));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function getCachedData(): array
+    {
+        return $this->cachedData ??= $this->getData();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function getData(): array
+    {
+        return [];
+    }
+
+    public function rendering(): void
+    {
+        $this->updateData();
+    }
+
+    public function updateData(): void
+    {
+        $newDataChecksum = $this->generateDataChecksum();
+
+        if ($newDataChecksum !== $this->dataChecksum) {
+            $this->dataChecksum = $newDataChecksum;
+
+            $this->dispatch('updateData', data: $this->getCachedData());
+        }
+    }
+
+    protected function getPollingInterval(): ?string
+    {
+        return static::$pollingInterval;
+    }
 
     public function getViewData(): array
     {
@@ -60,7 +124,7 @@ class DiscordPreview extends Widget
             'avatar' => $avatar,
             'embeds' => $embeds,
             'getTime' => $this->record->getTime(),
-            'actions' => [
+            /* 'actions' => [
                 Action::make('preview')
                     ->label('Preview')
                     ->disabled(fn () => !$content && !$embeds)
@@ -68,7 +132,7 @@ class DiscordPreview extends Widget
                     ->modalSubmitAction(false)
                     ->modalCancelAction(false)
                     ->action(fn () => null),
-            ],
+            ], */
         ];
     }
 
@@ -102,17 +166,5 @@ class DiscordPreview extends Widget
                 'human' => false,
             ]
         };
-    }
-
-    public function getIframe(): HtmlString
-    {
-        $src = route('preview', ['record' => $this->record]);
-
-        return new HtmlString(<<<HTML
-        <iframe
-            src="$src"
-            style="width: 100%; height: 75vh">
-        </iframe>
-        HTML);
     }
 }
