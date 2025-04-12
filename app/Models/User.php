@@ -283,26 +283,23 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             });
     }
 
-    /** @return int[] */
-    public function accessibleNodes(): array
+    /** @return Builder<Node> */
+    public function accessibleNodes(): Builder
     {
-        $allNodes = Node::pluck('id')->all();
-
+        $allNodes = Node::query();
         if ($this->isRootAdmin()) {
             return $allNodes;
         }
 
-        $nodes = [];
+        $roleIds = $this->roles()->pluck('id');
 
-        foreach ($this->roles as $role) {
-            if ($role->nodes->isEmpty()) {
-                continue;
-            }
+        $hasAnyNode = NodeRole::whereIn('role_id', $roleIds)->exists();
 
-            $nodes = array_merge($nodes, $role->nodes->map(fn ($node) => $node->id)->toArray());
+        if (!$hasAnyNode) {
+            return $allNodes;
         }
 
-        return count($nodes) === 0 ? $allNodes : array_unique($nodes);
+        return $allNodes->whereHas('roles', fn (Builder $builder) => $builder->whereIn('roles.id', $roleIds));
     }
 
     public function subusers(): HasMany
@@ -408,7 +405,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
         // Make sure the user can only target accessible nodes
         if ($model instanceof Node) {
-            return collect($this->accessibleNodes())->contains($model->id);
+            return $this->accessibleNodes()->where('id', $model->id)->exists();
         }
 
         return false;
