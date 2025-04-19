@@ -1,5 +1,5 @@
 :root {
-    --discord-embed-background-color: #23272A;
+    --discord-embed-background-color: #13162a;
     --discord-tag-color: #5865f2;
     --discord-timestamp-color: #949ba4;
     --discord-text-color: #dbdee1;
@@ -10,6 +10,10 @@
     --discord-spacer-margin-left: 4px;
     --discord-avatar-length: 40px;
     --discord-avatar-height: 40px;
+}
+
+.container {
+    background-color: #11131f !important;
 }
 
 .link {
@@ -85,10 +89,15 @@ img:hover {
     margin-right: var(--discord-avatar-margin-right);
 }
 
-/* .thumbnail {
-    margin-left: var(--discord-thumbnail-margin-left);
+.thumbnail {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-15%);
 }
- */
 
 .description,
 .field-value {

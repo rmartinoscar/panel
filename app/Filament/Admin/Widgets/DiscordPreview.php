@@ -2,143 +2,54 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use App\Models\Server;
 use App\Models\WebhookConfiguration;
 use Filament\Widgets\Widget;
-use Illuminate\Support\Arr;
-use Livewire\Attributes\Locked;
 
 class DiscordPreview extends Widget
 {
-    /**
-     * @var array<string, mixed> | null
-     */
-    protected ?array $cachedData = null;
-
-    #[Locked]
-    public ?string $dataChecksum = null;
-
-    /**
-     * @var view-string
-     */
     protected static string $view = 'filament.admin.widgets.discord-preview';
 
-    public static ?string $pollingInterval = null;
+    /** @var array<string, string> */
+    protected $listeners = [
+        'refresh-widget' => '$refresh',
+    ];
 
-    protected static bool $isLazy = false;
+    protected static bool $isDiscovered = false; // Without this its shown on every Admin Pages
 
     protected int|string|array $columnSpan = 1;
 
     public WebhookConfiguration $record;
 
-    /* public static function canView(): bool
-    {
-        return isset($this->record);
-    } */
-
-    public function mount(): void
-    {
-        $this->dataChecksum = $this->generateDataChecksum();
-    }
-
-    protected function generateDataChecksum(): string
-    {
-        return md5(json_encode($this->getCachedData()));
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getCachedData(): array
-    {
-        return $this->cachedData ??= $this->getData();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getData(): array
-    {
-        return [];
-    }
-
-    public function rendering(): void
-    {
-        $this->updateData();
-    }
-
-    public function updateData(): void
-    {
-        $newDataChecksum = $this->generateDataChecksum();
-
-        if ($newDataChecksum !== $this->dataChecksum) {
-            $this->dataChecksum = $newDataChecksum;
-
-            $this->dispatch('updateData', data: $this->getCachedData());
-        }
-    }
-
-    protected function getPollingInterval(): ?string
-    {
-        return static::$pollingInterval;
-    }
-
     public function getViewData(): array
     {
-        $payload = $this->record->payload;
-        $content = data_get($payload, 'content');
-        $username = data_get($payload, 'sender_username');
-        $avatar = data_get($payload, 'avatar_url');
+        $data = $this->record->run(true);
+
+        $payload = $this->record->replaceVars($data, json_encode($this->record->payload));
+        $payload = json_decode($payload, true);
+
         $embeds = data_get($payload, 'embeds', []);
-        $sender = $this->easterEgg($username);
-
-        $data = array_merge(Server::factory()->definition(), [
-            'id' => random_int(1, 100),
-            'event' => $this->record->transformClassName(collect($this->record->events)->random()),
-        ]);
-
-        if ($content) {
-            $content = $this->record->replaceVars($data, $content);
-        }
 
         foreach ($embeds as &$embed) {
-            $embed['description'] = $this->record->replaceVars($data, data_get($embed, 'description'));
-
-            if ($fields = data_get($embed, 'fields')) {
-                $embed['fields'] = Arr::map($fields, fn ($field) => [
-                    'name' => $this->record->replaceVars($data, data_get($field, 'name')),
-                    'value' => $this->record->replaceVars($data, data_get($field, 'value')),
-                    'inline' => data_get($field, 'inline'),
-                ]);
-            }
-
             if (data_get($embed, 'has_timestamp')) {
+                unset($embed['has_timestamp']);
                 $embed['timestamp'] = $this->record->getTime();
             }
         }
 
         return [
-            'content' => $content,
-            'username' => $username,
-            'sender' => $sender,
-            'avatar' => $avatar,
+            'link' => fn ($href, $child) => $href ? sprintf('<a href="%s" target="_blank" class="link">%s</a>', $href, $child) : $child,
+            'content' => data_get($payload, 'content'),
+            'sender' => $this->easterEgg(data_get($payload, 'username')),
             'embeds' => $embeds,
             'getTime' => $this->record->getTime(),
-            /* 'actions' => [
-                Action::make('preview')
-                    ->label('Preview')
-                    ->disabled(fn () => !$content && !$embeds)
-                    ->modalContent(fn () => $this->getIframe())
-                    ->modalSubmitAction(false)
-                    ->modalCancelAction(false)
-                    ->action(fn () => null),
-            ], */
         ];
     }
 
     /** @return array<string, mixed> */
     private function easterEgg(?string $author): array
     {
+        $avatar = data_get($this->record->payload, 'avatar_url');
+
         // If this is approved, add the other pelican contributors.
         return match ($author) {
             'JoanFo' => [
@@ -160,8 +71,8 @@ class DiscordPreview extends Widget
                 'human' => true,
             ],
             default => [
-                'name' => 'Pelican',
-                'avatar' => $this->sender['avatar_url'] ?? 'https://cdn.discordapp.com/avatars/1222179499253170307/d4d6873acc8a0d5fb5eaa5aa81572cf3.png',
+                'name' => $author ?? 'Pelican',
+                'avatar' => $avatar ?? 'https://cdn.discordapp.com/avatars/1222179499253170307/d4d6873acc8a0d5fb5eaa5aa81572cf3.png',
                 'decoration' => null,
                 'human' => false,
             ]

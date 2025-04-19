@@ -30,11 +30,11 @@ class EditWebhookConfiguration extends EditRecord
     {
         return [
             DeleteAction::make(),
-            /* Action::make('runNow')
+            Action::make('runNow')
                 ->label('Run now')
                 ->color('primary')
                 ->disabled(fn (WebhookConfiguration $webhookConfiguration) => count($webhookConfiguration->events) === 0)
-                ->action(fn (WebhookConfiguration $webhookConfiguration) => $webhookConfiguration->run()), */
+                ->action(fn (WebhookConfiguration $webhookConfiguration) => $webhookConfiguration->run()),
             $this->getSaveFormAction()->formId('form'),
         ];
     }
@@ -55,7 +55,7 @@ class EditWebhookConfiguration extends EditRecord
             }
 
             $tmp = collect([
-                'sender' => data_get($data, 'sender'),
+                'username' => data_get($data, 'username'),
                 'avatar_url' => data_get($data, 'avatar_url'),
                 'content' => data_get($data, 'content'),
                 'image' => data_get($data, 'image'),
@@ -65,7 +65,7 @@ class EditWebhookConfiguration extends EditRecord
                 'flags' => data_get($data, 'flags'),
             ])->filter(fn ($key) => !empty($key))->all();
 
-            unset($data['sender'], $data['avatar_url'], $data['content'], $data['image'], $data['thumbnail'], $data['embeds'], $data['thread_name'], $data['flags']);
+            unset($data['username'], $data['avatar_url'], $data['content'], $data['image'], $data['thumbnail'], $data['embeds'], $data['thread_name'], $data['flags']);
 
             $data['payload'] = $tmp;
         }
@@ -84,7 +84,7 @@ class EditWebhookConfiguration extends EditRecord
             }
 
             $tmp = collect([
-                'sender' => data_get($data, 'payload.sender'),
+                'username' => data_get($data, 'payload.username'),
                 'avatar_url' => data_get($data, 'payload.avatar_url'),
                 'content' => data_get($data, 'payload.content'),
                 'image' => data_get($data, 'payload.image'),

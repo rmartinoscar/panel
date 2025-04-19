@@ -193,19 +193,19 @@ class WebhookConfiguration extends Model
     /** @return array<string, mixed> */
     public function run(?bool $dry = false): array
     {
-        /*
         $eventName = collect($this->events)->random();
-        $data = array_merge(Server::factory()->definition(), [
-            'id' => random_int(1, 100),
-            'event' => $this->transformClassName($eventName),
-        ]);
+        $data = array_merge(
+            Server::factory()->makeOne()->attributesToArray(),
+            [
+                'id' => random_int(1, 100),
+                'event' => $this->transformClassName($eventName),
+            ]
+        );
 
         if (!$dry) {
             ProcessWebhook::dispatch($this, $eventName, $data);
         }
 
         return $data;
-        */
-        return [];
     }
 }

@@ -9,7 +9,6 @@ use App\Models\WebhookConfiguration;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
@@ -19,7 +18,6 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Support\Colors\Color;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Set;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -30,9 +28,6 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Features\SupportEvents\HandlesEvents;
 
 class WebhookResource extends Resource
@@ -40,8 +35,6 @@ class WebhookResource extends Resource
     use HandlesEvents;
 
     protected static ?string $model = WebhookConfiguration::class;
-
-    protected static ?WebhookConfiguration $clone = null;
 
     protected static ?string $navigationIcon = 'tabler-webhook';
 
@@ -160,12 +153,9 @@ class WebhookResource extends Resource
                 Section::make('Discord')
                     ->hidden(fn (Get $get) => $get('type') === 'standalone')
                     ->dehydratedWhenHidden()
+                    ->afterStateUpdated(fn ($livewire) => $livewire->dispatch('refresh-widget'))
                     ->schema(fn () => self::getDiscordFields())
                     ->view('filament.components.section')
-                    ->viewData([
-                        'record' => self::getClonedModel(),
-                        'pollingInterval' => null,
-                    ])
                     ->aside()
                     ->formBefore(),
                 Section::make('Events')
@@ -192,15 +182,11 @@ class WebhookResource extends Resource
                 ->collapsible()
                 ->schema([
                     TextInput::make('username')
-                        ->label('Username')
-                        ->afterStateUpdated(function ($state, $livewire) {
-                            self::getClonedModel(['username' => $state], $livewire);
-                        }),
+                        ->live()
+                        ->label('Username'),
                     TextInput::make('avatar_url')
-                        ->label('Avatar Url')
-                        ->afterStateUpdated(function ($state, $livewire) {
-                            self::getClonedModel(['avatar_url' => $state], $livewire);
-                        }),
+                        ->live(debounce: 500)
+                        ->label('Avatar Url'),
                 ]),
             Section::make('Message')
                 ->collapsible()
@@ -208,10 +194,7 @@ class WebhookResource extends Resource
                     TextInput::make('content')
                         ->label('Message')
                         ->live()
-                        ->required(fn (Get $get) => empty($get('embeds')))
-                        ->afterStateUpdated(function ($state, $livewire) {
-                            self::getClonedModel(['content' => $state], $livewire);
-                        }),
+                        ->required(fn (Get $get) => empty($get('embeds'))),
                     TextInput::make('thread_name')
                         ->label('Forum Thread Name'),
                     CheckboxList::make('flags')
@@ -221,7 +204,7 @@ class WebhookResource extends Resource
                             'notifications' => 'Suppress Notifications',
                         ]),
                 ]),
-            /*
+            /* TODO
                 Section::make('Attachments')
                     ->collapsible()->collapsed()
                     ->schema([
@@ -234,13 +217,10 @@ class WebhookResource extends Resource
                     ]),
                 */
             Repeater::make('embeds')
+                ->live()
                 ->itemLabel(fn (array $state) => $state['title'])
                 ->addActionLabel('Add embed')
                 ->required(fn (Get $get) => $get('../messages.needstobeastringhere.content') === '')
-                ->afterStateUpdated(function (array $state, $livewire) {
-                    self::getClonedModel($state, $livewire);
-                })
-                // ->grid()
                 ->reorderable()
                 ->collapsible()
                 ->maxItems(10)
@@ -250,11 +230,14 @@ class WebhookResource extends Resource
                         ->collapsed()
                         ->schema([
                             TextInput::make('author.name')
+                                ->live()
                                 ->label('Author')
                                 ->required(fn (Get $get) => filled($get('author.url')) || filled($get('author.icon_url'))),
                             TextInput::make('author.url')
+                                ->live(debounce: 500)
                                 ->label('Author URL'),
                             TextInput::make('author.icon_url')
+                                ->live(debounce: 500)
                                 ->label('Author Icon URL'),
                         ]),
                     Section::make('Body')
@@ -262,15 +245,19 @@ class WebhookResource extends Resource
                         ->collapsed()
                         ->schema([
                             TextInput::make('title')
+                                ->live()
                                 ->label('Title')
                                 ->required(fn (Get $get) => $get('description') === null),
                             Textarea::make('description')
+                                ->live()
                                 ->label('Description')
                                 ->required(fn (Get $get) => $get('title') === null),
                             ColorPicker::make('color')
+                                ->live()
                                 ->label('Embed Color')
                                 ->hex(),
                             TextInput::make('url')
+                                ->live(debounce: 500)
                                 ->label('URL'),
                         ]),
                     Section::make('Images')
@@ -278,8 +265,10 @@ class WebhookResource extends Resource
                         ->collapsed()
                         ->schema([
                             TextInput::make('image.url')
+                                ->live(debounce: 500)
                                 ->label('Image URL'),
                             TextInput::make('thumbnail.url')
+                                ->live(debounce: 500)
                                 ->label('Thumbnail URL'),
                         ]),
                     Section::make('Footer')
@@ -287,13 +276,18 @@ class WebhookResource extends Resource
                         ->collapsed()
                         ->schema([
                             TextInput::make('footer.text')
+                                ->live()
                                 ->label('Footer'),
-                            /* TextInput::make('timestamp')
+                            /* TODO
+                            TextInput::make('timestamp')
                                 ->label('Timestamp')
-                                ->hintAction(Action::make('now')->action(fn (Set $set) => $set('timestamp', Carbon::now()->getTimestamp()))), */
+                                ->hintAction(Action::make('now')->action(fn (Set $set) => $set('timestamp', Carbon::now()->getTimestamp()))),
+                            */
                             Checkbox::make('has_timestamp')
+                                ->live()
                                 ->label('Has Timestamp'),
                             TextInput::make('footer.icon_url')
+                                ->live(debounce: 500)
                                 ->label('Footer Icon URL'),
                         ]),
                     Section::make('Fields')
@@ -304,41 +298,21 @@ class WebhookResource extends Resource
                                 ->collapsible()
                                 ->schema([
                                     TextInput::make('name')
+                                        ->live()
                                         ->label('Field Name')
                                         ->required(),
                                     Textarea::make('value')
+                                        ->live()
                                         ->label('Field Value')
                                         ->rows(4)
                                         ->required(),
                                     Checkbox::make('inline')
+                                        ->live()
                                         ->label('Inline Field'),
                                 ]),
                         ]),
                 ]),
         ];
-    }
-
-    /** @param array<string, mixed> $data */
-    public static function getClonedModel(?array $data = null, ?Component $livewire = null): WebhookConfiguration
-    {
-        $model = self::$model::first();
-
-        if (!$data) {
-            return self::$clone ?? $model;
-        }
-
-        if (self::$clone) {
-            self::$clone->update($data);
-        } else {
-            self::$clone = $model->replicate()->fill($data);
-            self::$clone->save();
-        }
-
-        // dump(collect(self::$clone->getChanges())->except(['updated_at'])->all());
-
-        $livewire->dispatch('updateData', self::$clone->toArray());
-
-        return self::$clone;
     }
 
     public static function getPages(): array

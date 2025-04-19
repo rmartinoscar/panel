@@ -27,7 +27,7 @@
     "
 >
     <x-slot name="heading">
-        @livewire(App\Filament\Admin\Widgets\DiscordPreview::class, ['record' => $getRecord(), 'pollingInterval' => $pollingInterval])
+        @livewire(App\Filament\Admin\Widgets\DiscordPreview::class, ['record' => $getRecord(), 'pollingInterval' => $pollingInterval ?? null])
     </x-slot>
 
     {{ $getChildComponentContainer() }}
