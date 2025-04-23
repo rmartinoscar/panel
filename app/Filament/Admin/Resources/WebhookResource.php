@@ -148,8 +148,8 @@ class WebhookResource extends Resource
                     ->label(trans('admin/webhook.endpoint'))
                     ->activeUrl()
                     ->required()
-                    ->columnSpanFull(),
-                // ->afterStateUpdated(fn ($state, Set $set) => $set('type', str($state)->contains('discord.com') ? 'discord' : 'standalone')),
+                    ->columnSpanFull()
+                    ->afterStateUpdated(fn ($state, Set $set) => $set('type', str($state)->contains('discord.com') ? 'discord' : 'standalone')),
                 Section::make('Discord')
                     ->hidden(fn (Get $get) => $get('type') === 'standalone')
                     ->dehydratedWhenHidden()
@@ -164,6 +164,16 @@ class WebhookResource extends Resource
                         CheckboxList::make('events')
                             ->lazy()
                             ->options(fn () => WebhookConfiguration::filamentCheckboxList())
+                            /* ->afterStateUpdated(function ($state, CheckboxList $component) {
+                                $firstOption = collect($state)->first();
+                                if (!$firstOption) {
+                                    return;
+                                }
+                                $trim = fn ($str) => str($str)->afterLast(': ')->afterLast('\\');
+                                $options = collect($component->getOptions())
+                                    ->filter(fn ($option) => $trim($option) == $trim($firstOption));
+                                $component->options($options);
+                            }) */
                             ->searchable()
                             ->bulkToggleable()
                             ->columns(3)
@@ -200,8 +210,19 @@ class WebhookResource extends Resource
                     CheckboxList::make('flags')
                         ->label('Flags')
                         ->options([
-                            'embeds' => 'Suppress Embeds',
-                            'notifications' => 'Suppress Notifications',
+                            (1 << 2) => 'Suppress Embeds',
+                            (1 << 12) => 'Suppress Notifications',
+                        ])
+                        ->descriptions([
+                            (1 << 2) => 'Do not include any embeds when serializing this message',
+                            (1 << 12) => 'This message will not trigger push and desktop notifications',
+                        ]),
+                    CheckboxList::make('allowed_mentions.parse')
+                        ->label('Allowed Mentions')
+                        ->options([
+                            'roles' => 'Roles',
+                            'users' => 'Users',
+                            'everyone' => '@everyone & @here',
                         ]),
                 ]),
             /* TODO

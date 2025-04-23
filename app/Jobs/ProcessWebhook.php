@@ -62,7 +62,7 @@ class ProcessWebhook implements ShouldQueue
         }
 
         $this->webhookConfiguration->webhooks()->create([
-            'payload' => $this->data,
+            'payload' => $data,
             'successful_at' => $successful,
             'event' => $this->eventName,
             'endpoint' => $this->webhookConfiguration->endpoint,

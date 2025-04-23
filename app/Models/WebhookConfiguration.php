@@ -193,18 +193,14 @@ class WebhookConfiguration extends Model
     /** @return array<string, mixed> */
     public function run(?bool $dry = false): array
     {
-        $eventName = collect($this->events)->random();
-        $data = array_merge(
-            Server::factory()->makeOne()->attributesToArray(),
-            [
-                'id' => random_int(1, 100),
-                'event' => $this->transformClassName($eventName),
-            ]
-        );
+        $eventName = collect($this->events ?: ['eloquent.created: App\\Models\\Server'])->random();
+        $data = array_merge(Server::factory()->makeOne()->attributesToArray(), [
+            'id' => random_int(1, 100),
+            'event' => $this->transformClassName($eventName),
+        ]);
+        $eventData = [json_encode($data)];
 
-        if (!$dry) {
-            ProcessWebhook::dispatch($this, $eventName, $data);
-        }
+        ProcessWebhook::dispatchIf(!$dry, $this, $eventName, $eventData);
 
         return $data;
     }
