@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -241,9 +242,9 @@ class Node extends Model implements Validatable
         return $this->maintenance_mode;
     }
 
-    public function mounts(): HasManyThrough
+    public function mounts(): MorphToMany
     {
-        return $this->hasManyThrough(Mount::class, MountNode::class, 'node_id', 'id', 'id', 'mount_id');
+        return $this->morphToMany(Mount::class, 'mountable');
     }
 
     /**
@@ -403,10 +404,11 @@ class Node extends Model implements Validatable
                 }
             }
 
-            // Only IPV4
-            $ips = $ips->filter(fn (string $ip) => filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false);
+            $ips = $ips->filter(fn (string $ip) => is_ip($ip));
 
+            // TODO: remove later
             $ips->push('0.0.0.0');
+            $ips->push('::');
 
             return $ips->unique()->all();
         });
