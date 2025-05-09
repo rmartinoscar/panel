@@ -10,5 +10,8 @@ Route::prefix('api')->group(function () {
     Scramble::registerUiRoute(path: 'client', api: 'client');
     Scramble::registerJsonSpecificationRoute(path: 'client.json', api: 'client');
 
+    Scramble::registerUiRoute(path: 'remote', api: 'remote');
+    Scramble::registerJsonSpecificationRoute(path: 'remote.json', api: 'remote');
+
     Route::view('', 'docs.api-index');
 });

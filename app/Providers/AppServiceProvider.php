@@ -105,6 +105,15 @@ class AppServiceProvider extends ServiceProvider
         Scramble::registerApi('application', ['api_path' => 'api/application', 'info' => ['version' => '1.0']])->afterOpenApiGenerated($bearerTokens);
         Scramble::registerApi('client', ['api_path' => 'api/client', 'info' => ['version' => '1.0']])->afterOpenApiGenerated($bearerTokens);
 
+        
+        $remoteBearerToken = function (OpenApi $openApi) {
+            // $daemonToken = Models\Node::first()->daemon_token;
+            $openApi->secure(SecurityScheme::http('bearer', 'JWT'));
+        };
+        
+        Scramble::registerApi('remote', ['api_path' => 'api/remote', 'info' => ['version' => '1.0']])->afterOpenApiGenerated($remoteBearerToken);
+  
+
         // Default OAuth providers included with Socialite
         CommonProvider::register($app, 'facebook', null, 'tabler-brand-facebook-f', '#1877f2');
         CommonProvider::register($app, 'x', null, 'tabler-brand-x-f', '#1da1f2');
