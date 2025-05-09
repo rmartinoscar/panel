@@ -138,7 +138,7 @@ class DaemonFileRepository extends DaemonRepository
      *
      * @throws ConnectionException
      */
-    public function compressFiles(?string $root, array $files, ?string $name): array
+    public function compressFiles(?string $root, array $files, ?string $name, ?string $format, ?string $compression): array
     {
         return $this->getHttpClient()
             // Wait for up to 15 minutes for the archive to be completed when calling this endpoint
@@ -149,6 +149,8 @@ class DaemonFileRepository extends DaemonRepository
                     'root' => $root ?? '/',
                     'files' => $files,
                     'name' => $name ?? '',
+                    'format' => $format ?? 'tar',
+                    'compression' => $compression ?? 'gzip',
                 ]
             )->json();
     }

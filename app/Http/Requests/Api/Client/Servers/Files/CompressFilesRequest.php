@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api\Client\Servers\Files;
 
 use App\Models\Permission;
 use App\Http\Requests\Api\Client\ClientApiRequest;
+use App\Models\File;
 
 class CompressFilesRequest extends ClientApiRequest
 {
@@ -22,6 +23,8 @@ class CompressFilesRequest extends ClientApiRequest
             'files' => 'required|array',
             'files.*' => 'string',
             'name' => 'sometimes|nullable|string',
+            'format' => 'sometimes|nullable|string|in:' . implode(', ', array_keys(File::ARCHIVE_FORMATS)),
+            'compression' => 'sometimes|nullable|string|in:' . implode(', ', array_keys(File::ARCHIVE_COMPRESSIONS)),
         ];
     }
 }

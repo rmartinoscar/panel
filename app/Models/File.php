@@ -48,6 +48,30 @@ class File extends Model
         'application/zip', // .zip
     ];
 
+    public const ARCHIVE_FORMATS = [
+        'zip' => 'zip',
+        'tar' => 'tar',
+        /* Unsupported
+        'rar' => 'RAR',
+        '7z' => '7ZIP',
+        */
+    ];
+
+    public const ARCHIVE_COMPRESSIONS = [
+        'brotli' => 'bz',
+        'bzip2' => 'bz2',
+        // 'flate' => 'zip',
+        'gzip' => 'gz',
+        'lz4' => 'lz4',
+        'lzip' => 'lz',
+        'minlz' => 'mz',
+        'snappyz' => 'sz',
+        'snappy2' => 's2',
+        'xz' => 'xz',
+        'zlib' => 'zz',
+        'zstandard' => 'zst',
+    ];
+
     protected static Server $server;
 
     protected static string $path;
