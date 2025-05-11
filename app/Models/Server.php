@@ -49,6 +49,7 @@ use App\Services\Subusers\SubuserDeletionService;
  * @property int $allocation_id
  * @property int $egg_id
  * @property string $startup
+ * @property string $healthcheck
  * @property string $image
  * @property int|null $allocation_limit
  * @property int|null $database_limit
@@ -103,6 +104,7 @@ use App\Services\Subusers\SubuserDeletionService;
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereOomKiller($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereOwnerId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereSkipScripts($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereHealthcheck($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereStartup($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereSwap($value)

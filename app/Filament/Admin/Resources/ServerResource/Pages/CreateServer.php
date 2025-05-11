@@ -405,6 +405,24 @@ class CreateServer extends CreateRecord
                                     'md' => 4,
                                     'lg' => 6,
                                 ]),
+                            Textarea::make('healthcheck')
+                                ->hintIcon('tabler-code')
+                                ->label(trans('admin/server.healthcheck_cmd'))
+                                ->hidden(fn (Get $get) => $get('egg_id') === null)
+                                ->required()
+                                ->live()
+                                ->rows(function ($state) {
+                                    return str($state)->explode("\n")->reduce(
+                                        fn (int $carry, $line) => $carry + floor(strlen($line) / 125),
+                                        1
+                                    );
+                                })
+                                ->columnSpan([
+                                    'default' => 1,
+                                    'sm' => 4,
+                                    'md' => 4,
+                                    'lg' => 6,
+                                ]),
 
                             Hidden::make('environment')->default([]),
 

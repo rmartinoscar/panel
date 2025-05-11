@@ -33,6 +33,8 @@ return [
     'description_help' => 'A description of this Egg that will be displayed throughout the Panel as needed.',
     'startup' => 'Startup Command',
     'startup_help' => 'The default startup command that should be used for new servers using this Egg.',
+    'healthcheck' => 'Healthcheck Command',
+    'healthcheck_help' => 'The default healthcheck command that should be used for new servers using this Egg.',
     'file_denylist' => 'File Denylist',
     'file_denylist_help' => 'A list of files that the end user is not allowed to edit.',
     'features' => 'Features',

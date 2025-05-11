@@ -32,6 +32,7 @@ use Illuminate\Support\Str;
  * @property string|null $config_stop
  * @property int|null $config_from
  * @property string|null $startup
+ * @property string|null $healthcheck
  * @property bool $script_is_privileged
  * @property string|null $script_install
  * @property string $script_entry
@@ -90,6 +91,7 @@ class Egg extends Model implements Validatable
         'config_stop',
         'config_from',
         'startup',
+        'healthcheck',
         'update_url',
         'script_is_privileged',
         'script_install',
@@ -111,6 +113,7 @@ class Egg extends Model implements Validatable
         'docker_images' => ['required', 'array', 'min:1'],
         'docker_images.*' => ['required', 'string'],
         'startup' => ['required', 'nullable', 'string'],
+        'healthcheck' => ['required', 'nullable', 'string'],
         'config_from' => ['sometimes', 'bail', 'nullable', 'numeric', 'exists:eggs,id'],
         'config_stop' => ['required_without:config_from', 'nullable', 'string', 'max:255'],
         'config_startup' => ['required_without:config_from', 'nullable', 'json'],

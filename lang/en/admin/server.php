@@ -25,6 +25,8 @@ return [
     'make_primary' => 'Make Primary',
     'startup_cmd' => 'Startup Command',
     'default_startup' => 'Default Startup Command',
+    'healthcheck_cmd' => 'Healthcheck Command',
+    'default_healthcheck' => 'Default Healthcheck Command',
     'variables' => 'Variables',
     'resource_limits' => 'Resource Limits',
     'cpu' => 'CPU',

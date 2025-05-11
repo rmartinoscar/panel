@@ -6,7 +6,7 @@ use AbdelhamidErrahmouni\FilamentMonacoEditor\MonacoEditor;
 use App\Enums\SuspendAction;
 use App\Filament\Admin\Resources\ServerResource;
 use App\Filament\Admin\Resources\ServerResource\RelationManagers\AllocationsRelationManager;
-use App\Filament\Components\Forms\Actions\PreviewStartupAction;
+use App\Filament\Components\Forms\Actions\PreviewAction;
 use App\Filament\Components\Forms\Actions\RotateDatabasePasswordAction;
 use App\Filament\Server\Pages\Console;
 use App\Models\Allocation;
@@ -598,20 +598,27 @@ class EditServer extends EditRecord
                                     ->required()
                                     ->columnSpan(6)
                                     ->autosize()
-                                    ->hintAction(PreviewStartupAction::make('preview')),
-
+                                    ->hintAction(PreviewAction::make('preview')),
                                 Textarea::make('defaultStartup')
                                     ->hintAction(fn () => request()->isSecure() ? CopyAction::make() : null)
                                     ->label(trans('admin/server.default_startup'))
                                     ->disabled()
                                     ->autosize()
                                     ->columnSpan(6)
-                                    ->formatStateUsing(function ($state, Get $get) {
-                                        $egg = Egg::query()->find($get('egg_id'));
-
-                                        return $egg->startup;
-                                    }),
-
+                                    ->formatStateUsing(fn (Get $get) => Egg::query()->find($get('egg_id'))->startup),
+                                Textarea::make('healthcheck')
+                                    ->label(trans('admin/server.healthcheck'))
+                                    ->rows(3)
+                                    ->columnSpanFull()
+                                    ->required()
+                                    ->hintAction(PreviewAction::make('preview')),
+                                Textarea::make('defaultHealthcheck')
+                                    ->hintAction(fn () => request()->isSecure() ? CopyAction::make() : null)
+                                    ->label(trans('admin/server.default_healthcheck'))
+                                    ->disabled()
+                                    ->autosize()
+                                    ->columnSpan(6)
+                                    ->formatStateUsing(fn (Get $get) => Egg::query()->find($get('egg_id'))->healthcheck),
                                 Repeater::make('server_variables')
                                     ->label('')
                                     ->relationship('serverVariables', function (Builder $query) {

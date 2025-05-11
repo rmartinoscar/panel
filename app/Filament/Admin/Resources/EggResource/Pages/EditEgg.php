@@ -75,6 +75,12 @@ class EditEgg extends EditRecord
                                 ->columnSpanFull()
                                 ->required()
                                 ->helperText(trans('admin/egg.startup_help')),
+                            Textarea::make('healthcheck')
+                                ->label(trans('admin/egg.healthcheck'))
+                                ->rows(3)
+                                ->columnSpanFull()
+                                ->required()
+                                ->helperText(trans('admin/egg.healthcheck_help')),
                             TagsInput::make('file_denylist')
                                 ->label(trans('admin/egg.file_denylist'))
                                 ->placeholder('denied-file.txt')

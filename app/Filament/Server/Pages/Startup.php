@@ -3,7 +3,7 @@
 namespace App\Filament\Server\Pages;
 
 use App\Facades\Activity;
-use App\Filament\Components\Forms\Actions\PreviewStartupAction;
+use App\Filament\Components\Forms\Actions\PreviewAction;
 use App\Models\Permission;
 use App\Models\Server;
 use App\Models\ServerVariable;
@@ -51,7 +51,7 @@ class Startup extends ServerFormPage
                         'lg' => 4,
                     ])
                     ->autosize()
-                    ->hintAction(PreviewStartupAction::make('preview'))
+                    ->hintAction(PreviewAction::make('preview'))
                     ->readOnly(),
                 TextInput::make('custom_image')
                     ->label('Docker Image')
