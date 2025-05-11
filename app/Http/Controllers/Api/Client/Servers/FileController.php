@@ -212,8 +212,7 @@ class FileController extends ClientApiController
             $request->input('root'),
             $request->input('files'),
             $request->input('name'),
-            $request->input('format'),
-            $request->input('compression')
+            $request->input('format')
         );
 
         Activity::event('server:file.compress')

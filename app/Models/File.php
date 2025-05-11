@@ -49,27 +49,13 @@ class File extends Model
     ];
 
     public const ARCHIVE_FORMATS = [
-        'zip' => 'zip',
-        'tar' => 'tar',
-        /* Unsupported
-        'rar' => 'RAR',
-        '7z' => '7ZIP',
-        */
-    ];
-
-    public const ARCHIVE_COMPRESSIONS = [
-        'brotli' => 'bz',
-        'bzip2' => 'bz2',
-        // 'flate' => 'zip',
-        'gzip' => 'gz',
-        'lz4' => 'lz4',
-        'lzip' => 'lz',
-        'minlz' => 'mz',
-        'snappyz' => 'sz',
-        'snappy2' => 's2',
-        'xz' => 'xz',
-        'zlib' => 'zz',
-        'zstandard' => 'zst',
+        'brotli' => 'tar.bz',
+        'bzip2' => 'tar.bz2',
+        'flate' => 'zip',
+        'gzip' => 'tar.gz',
+        'lz4' => 'tar.lz4',
+        'xz' => 'tar.xz',
+        'zstandard' => 'tar.zst',
     ];
 
     protected static Server $server;

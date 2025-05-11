@@ -24,7 +24,6 @@ class CompressFilesRequest extends ClientApiRequest
             'files.*' => 'string',
             'name' => 'sometimes|nullable|string',
             'format' => 'sometimes|nullable|string|in:' . implode(', ', array_keys(File::ARCHIVE_FORMATS)),
-            'compression' => 'sometimes|nullable|string|in:' . implode(', ', array_keys(File::ARCHIVE_COMPRESSIONS)),
         ];
     }
 }

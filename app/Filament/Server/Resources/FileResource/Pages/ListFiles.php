@@ -268,36 +268,17 @@ class ListFiles extends ListRecords
                         ->form([
                             TextInput::make('name')
                                 ->placeholder(fn () => 'archive-' . str(Carbon::now()->toRfc3339String())->replace(':', '')->before('+0000') . 'Z')
-                                ->suffix(function (Get $get) {
-                                    $suffix = $get('format');
-                                    if ($suffix === 'tar') {
-                                        $suffix .= '.' . File::ARCHIVE_COMPRESSIONS[$get('compression')];
-                                    }
-
-                                    return '.' . $suffix;
-                                })
-                                ->columnSpan(2),
+                            /* ->suffix(fn (Get $get) => $get('format')) */,
                             Select::make('format')
                                 ->options(File::ARCHIVE_FORMATS)
                                 ->selectablePlaceholder(false)
-                                ->default('tar')
-                                ->live()
+                                ->default('tar.gz')
                                 ->required()
-                                ->native(false)
-                                ->columnSpan(1),
-                            Select::make('compression')
-                                ->dehydratedWhenHidden()
-                                ->visible(fn (Get $get) => $get('format') === 'tar')
-                                ->options(File::ARCHIVE_COMPRESSIONS)
-                                ->selectablePlaceholder(false)
-                                ->default('zstandard')
                                 ->live()
-                                ->required()
-                                ->native(false)
-                                ->columnSpan(1),
+                                ->native(false),
                         ])
                         ->action(function ($data, File $file) {
-                            $archive = $this->getDaemonFileRepository()->compressFiles($this->path, [$file->name], $data['name'], $data['format'], $data['compression']);
+                            $archive = $this->getDaemonFileRepository()->compressFiles($this->path, [$file->name], $data['name'], $data['format']);
 
                             Activity::event('server:file.compress')
                                 ->property('name', $archive['name'])
@@ -383,38 +364,19 @@ class ListFiles extends ListRecords
                     ->form([
                         TextInput::make('name')
                             ->placeholder(fn () => 'archive-' . str(Carbon::now()->toRfc3339String())->replace(':', '')->before('+0000') . 'Z')
-                            ->suffix(function (Get $get) {
-                                $suffix = $get('format');
-                                if ($suffix === 'tar') {
-                                    $suffix .= '.' . File::ARCHIVE_COMPRESSIONS[$get('compression')];
-                                }
-
-                                return '.' . $suffix;
-                            })
-                            ->columnSpan(2),
+                            ->suffix(fn (Get $get) => $get('format')),
                         Select::make('format')
                             ->options(File::ARCHIVE_FORMATS)
                             ->selectablePlaceholder(false)
-                            ->default('tar')
+                            ->default('tar.gz')
                             ->required()
                             ->live()
-                            ->native(false)
-                            ->columnSpan(1),
-                        Select::make('compression')
-                            ->dehydratedWhenHidden()
-                            ->visible(fn (Get $get) => $get('format') === 'tar')
-                            ->options(File::ARCHIVE_COMPRESSIONS)
-                            ->selectablePlaceholder(false)
-                            ->default('zstandard')
-                            ->required()
-                            ->live()
-                            ->native(false)
-                            ->columnSpan(1),
+                            ->native(false),
                     ])
                     ->action(function ($data, Collection $files) {
                         $files = $files->map(fn ($file) => $file['name'])->toArray();
 
-                        $archive = $this->getDaemonFileRepository()->compressFiles($this->path, $files, $data['name'], $data['format'], $data['compression']);
+                        $archive = $this->getDaemonFileRepository()->compressFiles($this->path, $files, $data['name'], $data['format']);
 
                         Activity::event('server:file.compress')
                             ->property('name', $archive['name'])
