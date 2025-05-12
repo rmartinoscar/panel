@@ -146,6 +146,7 @@ class Server extends Model implements Validatable
         'status' => ServerState::Installing,
         'oom_killer' => false,
         'installed_at' => null,
+        'healthcheck' => '',
     ];
 
     /**

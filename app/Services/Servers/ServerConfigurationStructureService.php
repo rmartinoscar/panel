@@ -88,6 +88,7 @@ class ServerConfigurationStructureService
             ],
             'container' => [
                 'image' => $server->image,
+                'healthcheck' => $server->healthcheck,
                 'requires_rebuild' => false,
             ],
             'allocations' => [
