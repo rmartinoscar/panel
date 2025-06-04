@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use App\Exceptions\Http\Server\ServerStateConflictException;
 use App\Services\Subusers\SubuserDeletionService;
+use Filament\Models\Contracts\HasName;
 
 /**
  * \App\Models\Server.
@@ -124,7 +125,7 @@ use App\Services\Subusers\SubuserDeletionService;
  * @method static \Illuminate\Database\Eloquent\Builder|Server wherePorts($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereUuidShort($value)
  */
-class Server extends Model implements Validatable
+class Server extends Model implements Validatable, HasName
 {
     use HasFactory;
     use HasValidation;
@@ -215,6 +216,11 @@ class Server extends Model implements Validatable
                 app(SubuserDeletionService::class)->handle($subuser, $server);
             }
         });
+    }
+
+    public function getFilamentName(): string
+    {
+        return str($this->name)->limit(20);
     }
 
     /**
