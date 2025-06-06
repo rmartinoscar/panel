@@ -45,13 +45,21 @@ jobs:
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-      - name: Cache
+      - name: Composer Cache
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-${{ matrix.php }}-
+
+      - name: PhpStan Cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp
+          key: ${{ runner.os }}-phpstan-${{ matrix.php }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-phpstan-${{ matrix.php }}-
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
