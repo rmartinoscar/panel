@@ -68,4 +68,4 @@ jobs:
         run: composer install --no-interaction --no-suggest --no-progress --no-scripts
 
       - name: PHPStan
-        run: vendor/bin/phpstan --memory-limit=-1 --error-format=github
+        run: vendor/bin/phpstan --memory-limit=-1 --debug --error-format=github
