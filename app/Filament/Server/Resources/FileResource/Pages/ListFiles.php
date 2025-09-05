@@ -290,6 +290,7 @@ class ListFiles extends ListRecords
                                 ->placeholder(fn () => 'archive-' . str(Carbon::now()->toRfc3339String())->replace(':', '')->before('+0000') . 'Z')
                                 ->suffixComponent(
                                     Select::make('format')
+                                        ->hiddenLabel()
                                         ->options(File::ARCHIVE_FORMATS)
                                         ->selectablePlaceholder(false)
                                         ->default('tar.gz')
@@ -384,17 +385,17 @@ class ListFiles extends ListRecords
                     ->authorize(fn () => auth()->user()->can(Permission::ACTION_FILE_ARCHIVE, $server))
                     ->form([
                         AffixedInput::make('name')
-                                ->label(trans('server/file.actions.archive.archive_name'))
-                                ->placeholder(fn () => 'archive-' . str(Carbon::now()->toRfc3339String())->replace(':', '')->before('+0000') . 'Z')
-                                ->suffixComponent(
-                                    Select::make('format')
-                                        ->options(File::ARCHIVE_FORMATS)
-                                        ->selectablePlaceholder(false)
-                                        ->default('tar.gz')
-                                        ->required()
-                                        ->live()
-                                        ->native(false)
-                                ),
+                            ->label(trans('server/file.actions.archive.archive_name'))
+                            ->placeholder(fn () => 'archive-' . str(Carbon::now()->toRfc3339String())->replace(':', '')->before('+0000') . 'Z')
+                        /* ->suffixComponent(
+                                Select::make('format')
+                                    ->options(File::ARCHIVE_FORMATS)
+                                    ->selectablePlaceholder(false)
+                                    ->default('tar.gz')
+                                    ->required()
+                                    ->live()
+                                    ->native(false)
+                            ) */,
                     ])
                     ->action(function ($data, Collection $files) {
                         $files = $files->map(fn ($file) => $file['name'])->toArray();

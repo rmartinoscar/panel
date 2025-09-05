@@ -13,16 +13,23 @@
     $isSuffixInline = $isSuffixInline();
     $mask = $getMask();
     $prefixActions = $getPrefixActions();
-    $prefixComponent = $getPrefixComponent(); // Affixes
     $prefixIcon = $getPrefixIcon();
     $prefixLabel = $getPrefixLabel();
     $suffixActions = $getSuffixActions();
-    $suffixComponent = $getSuffixComponent(); // Affixes
     $suffixIcon = $getSuffixIcon();
     $suffixLabel = $getSuffixLabel();
     $statePath = $getStatePath();
-    
-    
+
+    $prefixComponent = $getPrefixComponent();
+    if ($prefixComponent) {
+        $prefixComponent->container($getContainer());
+    }
+
+    $suffixComponent = $getSuffixComponent();
+    if ($suffixComponent) {
+        $suffixComponent->container($getContainer());
+    }
+
     if ($isPasswordRevealable) {
         $xData = '{ isPasswordRevealed: false }';
     } elseif (count($extraAlpineAttributes) || filled($mask)) {
@@ -54,7 +61,7 @@
         {{ $getLabel() }}
     </x-slot>
 
-    <affixed-input-wrapper
+    <x-affixed-input-wrapper
         :disabled="$isDisabled"
         :inline-prefix="$isPrefixInline"
         :inline-suffix="$isSuffixInline"
@@ -107,7 +114,7 @@
                     ])
             "
         />
-    </x-filament::input.wrapper>
+    </x-affixed-input-wrapper>
 
     @if ($datalistOptions)
         <datalist id="{{ $id }}-list">

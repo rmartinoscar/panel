@@ -160,10 +160,10 @@
                 </span>
             @endif
 
+        </div>
             @if ($prefixComponent)
                 {{ $prefixComponent }}
             @endif
-        </div>
     @endif
 
     <div
@@ -185,7 +185,6 @@
     @if ($hasSuffix)
         <div
             @class([
-                'hidden' => $suffixComponent?->isHidden(),
                 'fi-input-wrp-suffix flex items-center gap-x-3 pe-3',
                 'ps-1' => $inlineSuffix && filled($suffix),
                 'ps-2' => $inlineSuffix && blank($suffix),

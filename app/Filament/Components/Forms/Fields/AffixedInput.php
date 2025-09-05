@@ -8,7 +8,6 @@ use Filament\Forms\Components\TextInput;
 
 class AffixedInput extends TextInput
 {
-    /** @var view-string */
     protected string $view = 'filament.components.affixed-input';
 
     protected Component|Closure|null $prefixComponent = null;
