@@ -5,13 +5,12 @@ namespace App\Models;
 use App\Contracts\Validatable;
 use App\Exceptions\Service\Egg\HasChildrenException;
 use App\Exceptions\Service\HasActiveServersException;
-use App\Extensions\Features\FeatureProvider;
 use App\Traits\HasValidation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 /**
@@ -70,7 +69,7 @@ class Egg extends Model implements Validatable
     /**
      * Defines the current egg export version.
      */
-    public const EXPORT_VERSION = 'PLCN_v1';
+    public const EXPORT_VERSION = 'PLCN_v2';
 
     /**
      * Fields that are not mass assignable.
@@ -159,12 +158,6 @@ class Egg extends Model implements Validatable
 
             throw_if($egg->children()->count(), new HasChildrenException(trans('exceptions.egg.has_children')));
         });
-    }
-
-    /** @return array<FeatureProvider> */
-    public function features(): array
-    {
-        return FeatureProvider::getProviders($this->features);
     }
 
     /**

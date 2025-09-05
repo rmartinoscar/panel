@@ -19,7 +19,7 @@ class DaemonServerRepository extends DaemonRepository
     public function getDetails(): array
     {
         try {
-            return $this->getHttpClient()->get("/api/servers/{$this->server->uuid}")->throw()->json();
+            return $this->getHttpClient()->connectTimeout(1)->timeout(1)->get("/api/servers/{$this->server->uuid}")->throw()->json();
         } catch (RequestException $exception) {
             $cfId = $exception->response->header('Cf-Ray');
             $cfCache = $exception->response->header('Cf-Cache-Status');
@@ -31,8 +31,8 @@ class DaemonServerRepository extends DaemonRepository
 
             if ($requestBadGateway && $requestFromCloudflare && !$requestCachedFromCloudflare) {
                 Notification::make()
-                    ->title('Cloudflare Issue')
-                    ->body('Your Node is not accessible by Cloudflare')
+                    ->title(trans('admin/node.cloudflare_issue.title'))
+                    ->body(trans('admin/node.cloudflare_issue.body'))
                     ->danger()
                     ->send();
             }

@@ -204,8 +204,8 @@ class File extends Model
                 $message = str('Node connection failed');
             }
 
-            AlertBanner::make()
-                ->title('Could not load files!')
+            AlertBanner::make('files_node_error')
+                ->title(trans('server/file.alerts.files_node_error.title'))
                 ->body($message->toString())
                 ->danger()
                 ->send();

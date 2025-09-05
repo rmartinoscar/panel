@@ -97,6 +97,8 @@ class Permission extends Model implements Validatable
 
     public const ACTION_SETTINGS_RENAME = 'settings.rename';
 
+    public const ACTION_SETTINGS_DESCRIPTION = 'settings.description';
+
     public const ACTION_SETTINGS_REINSTALL = 'settings.reinstall';
 
     public const ACTION_ACTIVITY_READ = 'activity.read';
@@ -176,7 +178,7 @@ class Permission extends Model implements Validatable
             [
                 'name' => 'settings',
                 'icon' => 'tabler-settings',
-                'permissions' => ['rename', 'reinstall'],
+                'permissions' => ['rename', 'description', 'reinstall'],
             ],
             [
                 'name' => 'activity',
@@ -208,5 +210,12 @@ class Permission extends Model implements Validatable
         }
 
         return collect($permissions);
+    }
+
+    public static function permissionKeys(): Collection
+    {
+        return static::permissions()
+            ->map(fn ($value, $prefix) => array_map(fn ($value) => "$prefix.$value", array_keys($value['keys'])))
+            ->flatten();
     }
 }

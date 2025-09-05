@@ -7,18 +7,22 @@ use App\Models\File;
 use App\Models\Server;
 use App\Filament\Components\Tables\Columns\BytesColumn;
 use App\Filament\Components\Tables\Columns\DateTimeColumn;
+use App\Traits\Filament\CanCustomizeHeaderActions;
+use App\Traits\Filament\CanCustomizeHeaderWidgets;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 
 class SearchFiles extends ListRecords
 {
-    protected static string $resource = FileResource::class;
+    use CanCustomizeHeaderActions;
+    use CanCustomizeHeaderWidgets;
 
-    protected static ?string $title = 'Global Search';
+    protected static string $resource = FileResource::class;
 
     #[Locked]
     public string $searchTerm;
@@ -32,7 +36,7 @@ class SearchFiles extends ListRecords
 
         return [
             $resource::getUrl() => $resource::getBreadcrumb(),
-            self::getUrl(['searchTerm' => $this->searchTerm]) => 'Search "' . $this->searchTerm . '"',
+            self::getUrl(['searchTerm' => $this->searchTerm]) => trans('server/file.actions.global_search.search_for_term', ['term' => ' "' . $this->searchTerm . '"']),
         ];
     }
 
@@ -46,10 +50,18 @@ class SearchFiles extends ListRecords
             ->query(fn () => File::get($server, $this->path, $this->searchTerm)->orderByDesc('is_directory')->orderBy('name'))
             ->columns([
                 TextColumn::make('name')
+                    ->label(trans('server/file.name'))
                     ->searchable()
+                    ->sortable()
                     ->icon(fn (File $file) => $file->getIcon()),
-                BytesColumn::make('size'),
+                BytesColumn::make('size')
+                    ->label(trans('server/file.size'))
+                    ->visibleFrom('md')
+                    ->state(fn (File $file) => $file->size)
+                    ->sortable(),
                 DateTimeColumn::make('modified_at')
+                    ->label(trans('server/file.modified_at'))
+                    ->visibleFrom('md')
                     ->since()
                     ->sortable(),
             ])
@@ -60,5 +72,10 @@ class SearchFiles extends ListRecords
 
                 return $file->canEdit() ? EditFiles::getUrl(['path' => join_paths($this->path, $file->name)]) : null;
             });
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return trans('server/file.actions.global_search.title');
     }
 }
