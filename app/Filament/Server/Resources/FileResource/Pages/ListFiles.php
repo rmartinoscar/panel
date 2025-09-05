@@ -6,6 +6,7 @@ use AbdelhamidErrahmouni\FilamentMonacoEditor\MonacoEditor;
 use App\Enums\EditorLanguages;
 use App\Exceptions\Repository\FileExistsException;
 use App\Facades\Activity;
+use App\Filament\Components\Forms\Fields\AffixedInput;
 use App\Filament\Server\Resources\FileResource;
 use App\Models\File;
 use App\Models\Permission;
@@ -284,17 +285,18 @@ class ListFiles extends ListRecords
                         ->label(trans('server/file.actions.archive.title'))
                         ->icon('tabler-archive')
                         ->form([
-                            TextInput::make('name')
+                            AffixedInput::make('name')
                                 ->label(trans('server/file.actions.archive.archive_name'))
                                 ->placeholder(fn () => 'archive-' . str(Carbon::now()->toRfc3339String())->replace(':', '')->before('+0000') . 'Z')
-                            /* ->suffix(fn (Get $get) => $get('format')) */,
-                            Select::make('format')
-                                ->options(File::ARCHIVE_FORMATS)
-                                ->selectablePlaceholder(false)
-                                ->default('tar.gz')
-                                ->required()
-                                ->live()
-                                ->native(false),
+                                ->suffixComponent(
+                                    Select::make('format')
+                                        ->options(File::ARCHIVE_FORMATS)
+                                        ->selectablePlaceholder(false)
+                                        ->default('tar.gz')
+                                        ->required()
+                                        ->live()
+                                        ->native(false)
+                                ),
                         ])
                         ->action(function ($data, File $file) {
                             $archive = $this->getDaemonFileRepository()->compressFiles($this->path, [$file->name], $data['name'], $data['format']);
@@ -381,17 +383,18 @@ class ListFiles extends ListRecords
                 BulkAction::make('archive')
                     ->authorize(fn () => auth()->user()->can(Permission::ACTION_FILE_ARCHIVE, $server))
                     ->form([
-                        TextInput::make('name')
-                            ->label(trans('server/file.actions.archive.archive_name'))
-                            ->placeholder(fn () => 'archive-' . str(Carbon::now()->toRfc3339String())->replace(':', '')->before('+0000') . 'Z')
-                            ->suffix(fn (Get $get) => $get('format')),
-                        Select::make('format')
-                            ->options(File::ARCHIVE_FORMATS)
-                            ->selectablePlaceholder(false)
-                            ->default('tar.gz')
-                            ->required()
-                            ->live()
-                            ->native(false),
+                        AffixedInput::make('name')
+                                ->label(trans('server/file.actions.archive.archive_name'))
+                                ->placeholder(fn () => 'archive-' . str(Carbon::now()->toRfc3339String())->replace(':', '')->before('+0000') . 'Z')
+                                ->suffixComponent(
+                                    Select::make('format')
+                                        ->options(File::ARCHIVE_FORMATS)
+                                        ->selectablePlaceholder(false)
+                                        ->default('tar.gz')
+                                        ->required()
+                                        ->live()
+                                        ->native(false)
+                                ),
                     ])
                     ->action(function ($data, Collection $files) {
                         $files = $files->map(fn ($file) => $file['name'])->toArray();
