@@ -46,6 +46,8 @@ return [
     'in_array' => 'The :attribute field does not exist in :other.',
     'integer' => 'The :attribute must be an integer.',
     'ip' => 'The :attribute must be a valid IP address.',
+    'fqdn' => 'The :attribute must be a valid FQDN and not an IP address.',
+    'no_loopback' => 'The :attribute cannot be a loopback.',
     'json' => 'The :attribute must be a valid JSON string.',
     'max' => [
         'numeric' => 'The :attribute may not be greater than :max.',

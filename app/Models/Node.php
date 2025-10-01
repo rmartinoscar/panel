@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\Validatable;
 use App\Exceptions\Service\HasActiveServersException;
 use App\Repositories\Daemon\DaemonConfigurationRepository;
+use App\Rules\Fqdn;
 use App\Traits\HasValidation;
 use Carbon\Carbon;
 use Exception;
@@ -59,7 +60,7 @@ use Symfony\Component\Yaml\Yaml;
 class Node extends Model implements Validatable
 {
     use HasFactory;
-    use HasValidation;
+    use HasValidation { getRules as getValidationRules; }
     use Notifiable;
 
     /**
@@ -95,7 +96,7 @@ class Node extends Model implements Validatable
         'name' => ['required', 'string', 'min:1', 'max:100'],
         'description' => ['string', 'nullable'],
         'public' => ['boolean'],
-        'fqdn' => ['required', 'string', 'notIn:0.0.0.0,127.0.0.1,localhost'],
+        'fqdn' => ['required'],
         'scheme' => ['required', 'string', 'in:http,https'],
         'behind_proxy' => ['boolean'],
         'memory' => ['required', 'numeric', 'min:0'],
@@ -113,6 +114,19 @@ class Node extends Model implements Validatable
         'upload_size' => ['int', 'between:1,1024'],
         'tags' => ['array'],
     ];
+
+    /**
+     * Implement language verification by overriding Eloquence's gather rules function.
+     *
+     * @return array<array-key, string[]>
+     */
+    public static function getRules(): array
+    {
+        $rules = self::getValidationRules();
+        $rules['fqdn'][] = new Fqdn();
+
+        return $rules;
+    }
 
     /**
      * Default values for specific columns that are generally not changed on base installs.
