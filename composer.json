@@ -9,6 +9,7 @@
         "ext-mbstring": "*",
         "ext-pdo": "*",
         "ext-zip": "*",
+        "abdelhamiderrahmouni/filament-monaco-editor": "dev-pelican@dev",
         "achyutn/filament-log-viewer": "^1.4",
         "aws/aws-sdk-php": "^3.356",
         "calebporzio/sushi": "^2.5",
@@ -95,6 +96,12 @@
             "php": "8.2"
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/rmartinoscar/filament-monaco-editor"
+        }
+    ],
     "minimum-stability": "stable",
     "prefer-stable": true
 }

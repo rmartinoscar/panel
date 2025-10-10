@@ -2,8 +2,10 @@
 
 namespace App\Filament\Server\Resources\Files\Pages;
 
+use App\Enums\EditorLanguages;
 use App\Exceptions\Repository\FileExistsException;
 use App\Facades\Activity;
+use App\Filament\Components\Forms\Fields\MonacoEditor;
 use App\Filament\Components\Tables\Columns\BytesColumn;
 use App\Filament\Components\Tables\Columns\DateTimeColumn;
 use App\Filament\Server\Resources\Files\FileResource;
@@ -24,8 +26,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\CodeEditor;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
@@ -466,8 +468,17 @@ class ListFiles extends ListRecords
                         TextInput::make('name')
                             ->label(trans('server/file.actions.new_file.file_name'))
                             ->required(),
-                        CodeEditor::make('editor')
-                            ->hiddenLabel(),
+                        Select::make('lang')
+                            ->label('Syntax Highlighting')
+                            ->searchable()
+                            ->native(false)
+                            ->live()
+                            ->options(EditorLanguages::class)
+                            ->selectablePlaceholder(false)
+                            ->afterStateUpdated(fn ($state) => $this->dispatch('setLanguage', lang: $state->value))
+                            ->default(EditorLanguages::plaintext),
+                        MonacoEditor::make('editor')
+                            ->language(fn (Get $get) => $get('lang')),
                     ]),
                 Action::make('new_folder')
                     ->authorize(fn () => user()?->can(Permission::ACTION_FILE_CREATE, $server))

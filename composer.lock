@@ -4,8 +4,113 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "101c2afb1f31acb872b4bed541397cd2",
+    "content-hash": "581c03b6ebbe859619d24d4cbd7a9f13",
     "packages": [
+        {
+            "name": "abdelhamiderrahmouni/filament-monaco-editor",
+            "version": "dev-pelican",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rmartinoscar/filament-monaco-editor.git",
+                "reference": "d06dcf9fe7d05a69b9fa43f4679608899ca67457"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rmartinoscar/filament-monaco-editor/zipball/d06dcf9fe7d05a69b9fa43f4679608899ca67457",
+                "reference": "d06dcf9fe7d05a69b9fa43f4679608899ca67457",
+                "shasum": ""
+            },
+            "require": {
+                "filament/forms": "^4.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.4",
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^8.8",
+                "orchestra/testbench": "^10.4",
+                "pestphp/pest": "^3.8",
+                "pestphp/pest-plugin-arch": "^3.1",
+                "pestphp/pest-plugin-laravel": "^3.2",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "spatie/laravel-ray": "^1.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AbdelhamidErrahmouni\\FilamentMonacoEditor\\MonacoEditorServiceProvider"
+                    ],
+                    "aliases": {
+                        "MonacoEditor": "AbdelhamidErrahmouni\\FilamentMonacoEditor\\Facades\\MonacoEditor"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AbdelhamidErrahmouni\\FilamentMonacoEditor\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "AbdelhamidErrahmouni\\FilamentMonacoEditor\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "post-autoload-dump": [
+                    "@php ./vendor/bin/testbench package:discover --ansi"
+                ],
+                "analyse": [
+                    "vendor/bin/phpstan analyse"
+                ],
+                "test": [
+                    "vendor/bin/pest"
+                ],
+                "test-coverage": [
+                    "vendor/bin/pest --coverage"
+                ],
+                "format": [
+                    "vendor/bin/pint"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Abdelhamid Errahmouni",
+                    "email": "abdelhamid.errahmouni@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A monaco editor form field for filamentphp.",
+            "homepage": "https://github.com/abdelhamiderrahmouni/filament-monaco-editor",
+            "keywords": [
+                "Abdelhamid Errahmouni",
+                "code editor",
+                "filament monaco code editor",
+                "filament monaco editor",
+                "filamentphp",
+                "laravel",
+                "monaco",
+                "monaco editor",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/abdelhamiderrahmouni/filament-monaco-editor/issues",
+                "source": "https://github.com/abdelhamiderrahmouni/filament-monaco-editor"
+            },
+            "funding": [
+                {
+                    "type": "github",
+                    "url": "https://github.com/AbdelhamidErrahmouni"
+                }
+            ],
+            "time": "2025-10-10T21:29:03+00:00"
+        },
         {
             "name": "achyutn/filament-log-viewer",
             "version": "v1.5",
@@ -15229,7 +15334,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "abdelhamiderrahmouni/filament-monaco-editor": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

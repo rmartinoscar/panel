@@ -9,6 +9,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Str;
 
 class DaemonServerRepository extends DaemonRepository
 {
@@ -145,10 +146,17 @@ class DaemonServerRepository extends DaemonRepository
 
     public function getInstallLogs(): string
     {
-        return $this->getHttpClient()
+        $result = $this->getHttpClient()
             ->get("/api/servers/{$this->server->uuid}/install-logs")
             ->throw()
             ->json('data');
+
+        return Str::of($result)
+            ->replaceMatches('/\x1B(?:\[[0-9;?]*[A-Za-z]|[@-Z\\-_])/', '')
+            ->replace(["\r\n", "\r"], "\n")
+            ->replaceMatches('/^[ \t]*\n/m', '')
+            ->trim()
+            ->value();
     }
 
     /**
