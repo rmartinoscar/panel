@@ -8,13 +8,48 @@ on:
 jobs:
   shift:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - name: Shift
+        id: trigger
         run: |
-          curl -X POST -s -retry 5 -m 60 --fail-with-body \
+          response=$(curl -X POST -s --retry 5 -m 60 --fail-with-body \
             https://laravelshift.com/api/run \
             -H "Accept: application/json" \
             -d "api_token=${{ secrets.SHIFT_TOKEN }}" \
             -d "code=${{ secrets.SHIFT_CODE }}" \
-            -d "scs=github:${{ github.repository }}:${{ github.ref_name }}"
+            -d "scs=github:${{ github.repository }}:${{ github.ref_name }}")
+          shift_id=$(echo "$response" | jq -r '.shift')
+          echo "shift_id=$shift_id" >> $GITHUB_OUTPUT
+
+      - name: Wait for Shift branch
+        id: wait
+        run: |
+          echo "Waiting for branch ${{ steps.trigger.outputs.shift_id }}..."
+          for i in {1..30}; do
+            git ls-remote --exit-code origin ${{ steps.trigger.outputs.shift_id }} && break
+            echo "Branch not found, retrying in 30s..."
+            sleep 30
+          done
+          echo "branch=${{ steps.trigger.outputs.shift_id }}" >> $GITHUB_OUTPUT
+
+      - name: Checkout Shift branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.wait.outputs.branch }}
+          fetch-depth: 1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: bcmath, curl, gd, mbstring, mysql, openssl, pdo, tokenizer, xml, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Composer update
+        run: |
+          composer update
+          git add .
+          git commit --author="Shift <shift@laravelshift.com>" -m "composer update" || echo "No changes to commit"
+          git push origin ${{ steps.wait.outputs.branch }}
