@@ -47,53 +47,17 @@
             terminalDiv.innerHTML = '';
         }
 
-        let theme = {
-            background: 'rgba(19,26,32,0.7)',
-            cursor: 'transparent',
-            black: '#000000',
-            red: '#E54B4B',
-            green: '#9ECE58',
-            yellow: '#FAED70',
-            blue: '#396FE2',
-            magenta: '#BB80B3',
-            cyan: '#2DDAFD',
-            white: '#d0d0d0',
-            brightBlack: 'rgba(255, 255, 255, 0.2)',
-            brightRed: '#FF5370',
-            brightGreen: '#C3E88D',
-            brightYellow: '#FFCB6B',
-            brightBlue: '#82AAFF',
-            brightMagenta: '#C792EA',
-            brightCyan: '#89DDFF',
-            brightWhite: '#ffffff',
-            selection: '#FAF089'
-        };
-
         let options = {
             fontSize: {{ $userFontSize }},
             fontFamily: '{{ $userFont }}, monospace',
-            lineHeight: 1.2,
-            disableStdin: true,
-            cursorStyle: 'underline',
-            cursorInactiveStyle: 'underline',
-            allowTransparency: true,
-            rows: {{ $userRows }},
-            theme: theme
+            rows: {{ $userRows }}
         };
 
-        const { Terminal, FitAddon, WebLinksAddon, SearchAddon, SearchBarAddon, WebglAddon } = window.Xterm;
+        window.Xterm.cleanupTerminal();
 
-        const terminal = new Terminal(options);
-        const fitAddon = new FitAddon();
-        const webLinksAddon = new WebLinksAddon();
-        const searchAddon = new SearchAddon();
-        const searchAddonBar = new SearchBarAddon({ searchAddon });
-        const webglAddon = new WebglAddon();
-        terminal.loadAddon(fitAddon);
-        terminal.loadAddon(webLinksAddon);
-        terminal.loadAddon(searchAddon);
-        terminal.loadAddon(searchAddonBar);
-        terminal.loadAddon(webglAddon);
+        const { terminal, fitAddon } = window.Xterm.createTerminal(options);
+
+        window.Xterm.terminal = terminal;
 
         terminal.open(terminalDiv);
 
@@ -105,20 +69,6 @@
 
         window.addEventListener('resize', () => {
             fitAddon.fit();
-        });
-
-        terminal.attachCustomKeyEventHandler((event) => {
-            if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
-                navigator.clipboard.writeText(terminal.getSelection());
-                return false;
-            } else if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
-                event.preventDefault();
-                searchAddonBar.show();
-                return false;
-            } else if (event.key === 'Escape') {
-                searchAddonBar.hidden();
-            }
-            return true;
         });
 
         const TERMINAL_PRELUDE = '\u001b[1m\u001b[33mpelican@' + '{{ \Filament\Facades\Filament::getTenant()->name }}' + ' ~ \u001b[0m';
@@ -136,6 +86,7 @@
             terminal.writeln(TERMINAL_PRELUDE + 'Server marked as ' + state + '...\u001b[0m');
 
         const socket = new WebSocket("{{ $this->getSocket() }}");
+        window.Xterm.socket = socket;
 
         socket.onerror = (event) => {
             $wire.dispatchSelf('websocket-error');
