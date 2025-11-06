@@ -137,7 +137,7 @@ class Plugin extends Model implements HasPluginSettings
                     'panel_version' => Arr::get($data, 'panel_version', null),
                     'composer_packages' => $composerPackages,
 
-                    'status' => Arr::get($data, 'meta.status', PluginStatus::NotInstalled->value),
+                    'status' => Arr::get($data, 'meta.status', PluginStatus::Uninstalled->value),
                     'status_message' => Arr::get($data, 'meta.status_message', null),
                     'load_order' => Arr::integer($data, 'meta.load_order', 0),
                 ];
@@ -192,17 +192,27 @@ class Plugin extends Model implements HasPluginSettings
 
     public function shouldLoad(?string $panelId = null): bool
     {
-        return !$this->isDisabled() && $this->isInstalled() && !$this->isIncompatible() && (is_null($panelId) || !$this->panels || in_array($panelId, explode(',', $this->panels)));
+        return $this->isEnabled() && !$this->isIncompatible() && (is_null($panelId) || !$this->panels || in_array($panelId, explode(',', $this->panels)));
     }
 
     public function canEnable(): bool
     {
-        return $this->isDisabled() && $this->isInstalled() && $this->isCompatible();
+        return $this->isDisabled() && $this->isCompatible();
     }
 
     public function canDisable(): bool
     {
-        return $this->isEnabled() && $this->isInstalled() && $this->isCompatible();
+        return $this->isEnabled();
+    }
+
+    public function canInstall(): bool
+    {
+        return $this->isUninstalled() && $this->isCompatible();
+    }
+
+    public function canUninstall(): bool
+    {
+        return $this->isDisabled();
     }
 
     public function isEnabled(): bool
@@ -217,7 +227,12 @@ class Plugin extends Model implements HasPluginSettings
 
     public function isInstalled(): bool
     {
-        return $this->status !== PluginStatus::NotInstalled;
+        return $this->status === PluginStatus::Installed;
+    }
+
+    public function isUninstalled(): bool
+    {
+        return $this->status === PluginStatus::Uninstalled;
     }
 
     public function hasErrored(): bool

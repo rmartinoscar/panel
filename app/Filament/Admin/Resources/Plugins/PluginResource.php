@@ -114,7 +114,7 @@ class PluginResource extends Resource
                     ->authorize(fn (Plugin $plugin) => user()?->can('update', $plugin))
                     ->icon('tabler-terminal')
                     ->color('success')
-                    ->hidden(fn (Plugin $plugin) => $plugin->isInstalled())
+                    ->visible(fn (Plugin $plugin) => $plugin->canInstall())
                     ->action(function (Plugin $plugin, $livewire) {
                         Plugins::installPlugin($plugin, !$plugin->isTheme() || !Plugins::hasThemePluginEnabled());
 
@@ -123,6 +123,22 @@ class PluginResource extends Resource
                         Notification::make()
                             ->success()
                             ->title(trans('admin/plugin.notifications.installed'))
+                            ->send();
+                    }),
+                Action::make('uninstall')
+                    ->label(trans('admin/plugin.uninstall'))
+                    ->authorize(fn (Plugin $plugin) => user()?->can('update', $plugin))
+                    ->icon('tabler-trash')
+                    ->color('danger')
+                    ->visible(fn (Plugin $plugin) => $plugin->canUninstall())
+                    ->action(function (Plugin $plugin, $livewire) {
+                        Plugins::uninstallPlugin($plugin);
+
+                        redirect(ListPlugins::getUrl(['tab' => $livewire->activeTab]));
+
+                        Notification::make()
+                            ->success()
+                            ->title(trans('admin/plugin.notifications.uninstalled'))
                             ->send();
                     }),
                 Action::make('update')

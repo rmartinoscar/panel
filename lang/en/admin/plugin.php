@@ -14,6 +14,7 @@ return [
     'visit_website' => 'Visit Website',
     'settings' => 'Settings',
     'install' => 'Install',
+    'uninstall' => 'Uninstall',
     'update' => 'Update',
     'enable' => 'Enable',
     'disable' => 'Disable',
@@ -31,7 +32,8 @@ return [
     ],
 
     'status_enum' => [
-        'not_installed' => 'Not Installed',
+        'installed' => 'Installed',
+        'uninstalled' => 'Uninstalled',
         'disabled' => 'Disabled',
         'enabled' => 'Enabled',
         'errored' => 'Errored',
@@ -46,6 +48,7 @@ return [
 
     'notifications' => [
         'installed' => 'Plugin installed',
+        'uninstalled' => 'Plugin uninstalled',
         'updated' => 'Plugin updated',
         'enabled' => 'Plugin enabled',
         'disabled' => 'Plugin disabled',

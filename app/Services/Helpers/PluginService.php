@@ -166,6 +166,22 @@ class PluginService
         }
     }
 
+    public function removeComposerPackages(Plugin $plugin): void
+    {
+        if ($plugin->composer_packages) {
+            $composerPackages = collect(json_decode($plugin->composer_packages, true, 512, JSON_THROW_ON_ERROR))
+                ->map(fn ($version, $package) => "$package:$version")
+                ->flatten()
+                ->unique()
+                ->toArray();
+
+            $result = Process::path(base_path())->timeout(600)->run(['composer', 'remove', ...$composerPackages]);
+            if ($result->failed()) {
+                throw new Exception('Could not remove composer packages: ' . $result->errorOutput());
+            }
+        }
+    }
+
     public function runPluginMigrations(Plugin $plugin): void
     {
         $migrations = plugin_path($plugin->id, 'database', 'migrations');
@@ -174,6 +190,18 @@ class PluginService
 
             if (!$success) {
                 throw new Exception("Could not run migrations for plugin '{$plugin->id}'");
+            }
+        }
+    }
+
+    public function rollbackPluginMigrations(Plugin $plugin): void
+    {
+        $migrations = plugin_path($plugin->id, 'database', 'migrations');
+        if (file_exists($migrations)) {
+            $success = Artisan::call('migrate:rollback', ['--realpath' => true, '--path' => $migrations, '--force' => true]) === 0;
+
+            if (!$success) {
+                throw new Exception("Could not rollback migrations for plugin '{$plugin->id}'");
             }
         }
     }
@@ -219,6 +247,19 @@ class PluginService
                     $this->disablePlugin($plugin);
                 }
             }
+        } catch (Exception $exception) {
+            $this->handlePluginException($plugin, $exception);
+        }
+    }
+
+    public function uninstallPlugin(Plugin $plugin): void
+    {
+        try {
+            $this->removeComposerPackages($plugin);
+
+            $this->rollbackPluginMigrations($plugin);
+
+            $this->setStatus($plugin, PluginStatus::Uninstalled);
         } catch (Exception $exception) {
             $this->handlePluginException($plugin, $exception);
         }
