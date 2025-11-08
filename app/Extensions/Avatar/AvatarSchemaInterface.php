@@ -2,7 +2,7 @@
 
 namespace App\Extensions\Avatar;
 
-use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 interface AvatarSchemaInterface
 {
@@ -10,5 +10,5 @@ interface AvatarSchemaInterface
 
     public function getName(): string;
 
-    public function get(User $user): ?string;
+    public function get(Model $model): ?string;
 }

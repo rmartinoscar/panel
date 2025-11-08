@@ -3,7 +3,7 @@
 namespace App\Extensions\Avatar\Schemas;
 
 use App\Extensions\Avatar\AvatarSchemaInterface;
-use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class UiAvatarsSchema implements AvatarSchemaInterface
 {
@@ -17,7 +17,7 @@ class UiAvatarsSchema implements AvatarSchemaInterface
         return 'UI Avatars';
     }
 
-    public function get(User $user): ?string
+    public function get(Model $model): ?string
     {
         // UI Avatars is the default of filament so just return null here
         return null;

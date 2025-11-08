@@ -3,7 +3,7 @@
 namespace App\Extensions\Avatar\Schemas;
 
 use App\Extensions\Avatar\AvatarSchemaInterface;
-use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class GravatarSchema implements AvatarSchemaInterface
 {
@@ -17,8 +17,12 @@ class GravatarSchema implements AvatarSchemaInterface
         return 'Gravatar';
     }
 
-    public function get(User $user): string
+    public function get(Model $model): ?string
     {
-        return 'https://gravatar.com/avatar/' . md5($user->email);
+        if (!property_exists($model, 'email')) {
+            return null;
+        }
+
+        return 'https://gravatar.com/avatar/' . md5($model->email);
     }
 }

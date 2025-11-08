@@ -7,11 +7,13 @@ use App\Enums\ContainerStatus;
 use App\Enums\ServerResourceType;
 use App\Enums\ServerState;
 use App\Exceptions\Http\Server\ServerStateConflictException;
+use App\Extensions\Avatar\AvatarService;
 use App\Repositories\Daemon\DaemonServerRepository;
 use App\Services\Subusers\SubuserDeletionService;
 use App\Traits\HasValidation;
 use Carbon\CarbonInterface;
 use Database\Factories\ServerFactory;
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -28,6 +30,7 @@ use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Psr\Http\Message\ResponseInterface;
 
@@ -129,7 +132,7 @@ use Psr\Http\Message\ResponseInterface;
  * @method static Builder|Server wherePorts($value)
  * @method static Builder|Server whereUuidShort($value)
  */
-class Server extends Model implements Validatable
+class Server extends Model implements HasAvatar, Validatable
 {
     use HasFactory;
     use HasValidation;
@@ -220,6 +223,11 @@ class Server extends Model implements Validatable
                 app(SubuserDeletionService::class)->handle($subuser, $server);
             }
         });
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return App::call(fn (AvatarService $service) => $service->getAvatarUrl($this));
     }
 
     /**

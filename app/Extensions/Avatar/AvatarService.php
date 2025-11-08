@@ -2,7 +2,7 @@
 
 namespace App\Extensions\Avatar;
 
-use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class AvatarService
@@ -25,17 +25,18 @@ class AvatarService
         return $this->get($this->activeSchema);
     }
 
-    public function getAvatarUrl(User $user): ?string
+    public function getAvatarUrl(Model $model): ?string
     {
         if ($this->allowUploadedAvatars) {
-            $path = "avatars/$user->id.png";
+            $id = $model->getKey();
+            $path = "avatars/$id.png";
 
             if (Storage::disk('public')->exists($path)) {
                 return Storage::url($path);
             }
         }
 
-        return $this->getActiveSchema()?->get($user);
+        return $this->getActiveSchema()?->get($model);
     }
 
     public function register(AvatarSchemaInterface $schema): void
