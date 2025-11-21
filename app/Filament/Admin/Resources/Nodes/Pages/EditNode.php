@@ -89,7 +89,7 @@ class EditNode extends EditRecord
                         ->schema([
                             Fieldset::make()
                                 ->label(trans('admin/node.node_info'))
-                                ->columns(4)
+                                ->columns(6)
                                 ->columnSpanFull()
                                 ->schema([
                                     TextEntry::make('wings_version')
@@ -104,6 +104,12 @@ class EditNode extends EditRecord
                                     TextEntry::make('kernel')
                                         ->label(trans('admin/node.kernel'))
                                         ->state(fn (Node $node) => $node->systemInformation()['kernel_version'] ?? trans('admin/node.unknown')),
+                                    TextEntry::make('os')
+                                        ->label(trans('admin/node.os'))
+                                        ->state(fn (Node $node) => $node->systemInformation()['os'] ?? trans('admin/node.unknown')),
+                                    TextEntry::make('os_type')
+                                        ->label(trans('admin/node.os_type'))
+                                        ->state(fn (Node $node) => $node->systemInformation()['os_type'] ?? trans('admin/node.unknown')),
                                 ]),
                             View::make('filament.components.node-cpu-chart')
                                 ->columnSpan([

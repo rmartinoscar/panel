@@ -70,6 +70,16 @@ class ServerConsole extends Widget
         return $socket;
     }
 
+    protected function getPrelude(): string
+    {
+        $node = $this->server->node;
+        $appName = cache()->remember("nodes.{$node->id}.app_name", now()->addHour(), function () use ($node) {
+            return $node->systemInformation()['app_name'] ?? 'pelican';
+        });
+
+        return sprintf('\u001b[1m\u001b[33m%s@%s ~ \u001b[0m', $appName, $this->server->name);
+    }
+
     protected function authorizeSendCommand(): bool
     {
         return $this->user->can(Permission::ACTION_CONTROL_CONSOLE, $this->server);

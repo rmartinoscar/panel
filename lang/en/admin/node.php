@@ -30,6 +30,8 @@ return [
     'cpu_threads' => 'CPU Threads',
     'architecture' => 'Architecture',
     'kernel' => 'Kernel',
+    'os' => 'OS',
+    'os_type' => 'Type',
     'unknown' => 'Unknown',
     'latest' => '(Latest: :version)',
     'node_uuid' => 'Node UUID',

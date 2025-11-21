@@ -48,8 +48,7 @@
             rows: {{ $userRows }},
         };
 
-        const TERMINAL_PRELUDE = '\u001b[1m\u001b[33mpelican@' + '{{ $this->server->name }}' + ' ~ \u001b[0m';
-        window.console.setupWidget("{{ $this->getSocket() }}", "{{ $this->server->uuid }}", TERMINAL_PRELUDE, $wire, options);
+        window.console.setupWidget("{{ $this->getSocket() }}", "{{ $this->server->uuid }}", "{{ $this->getPrelude() }}", $wire, options);
     </script>
     @endscript
 </x-filament::widget>
