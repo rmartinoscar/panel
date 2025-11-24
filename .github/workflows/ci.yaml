@@ -131,7 +131,7 @@ jobs:
       - name: Integration tests
         run: |
           composer run test:parallel -- tests/Integration
-          echo {{ job.env.DB_HOST }}
+          echo $DB_HOST
         env:
           SKIP_MIGRATIONS: false
 
@@ -195,7 +195,7 @@ jobs:
       - name: Integration tests
         run: |
           composer run test:parallel -- tests/Integration
-          echo {{ job.env.DB_HOST }}
+          echo $DB_HOST
         env:
           SKIP_MIGRATIONS: false
 
@@ -264,6 +264,6 @@ jobs:
       - name: Integration tests
         run: |
           composer run test:parallel -- tests/Integration
-          echo {{ job.env.DB_HOST }}
+          echo $DB_HOST
         env:
           SKIP_MIGRATIONS: false
