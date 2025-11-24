@@ -62,13 +62,14 @@ jobs:
         run: touch database/testing.sqlite
 
       - name: Unit tests
-        run: vendor/bin/pest tests/Unit
+        run: composer run test:parallel -- tests/Unit
         env:
-          DB_HOST: UNIT_NO_DB
           SKIP_MIGRATIONS: true
 
       - name: Integration tests
-        run: vendor/bin/pest tests/Integration
+        run: composer run test:parallel -- tests/Integration
+        env:
+          SKIP_MIGRATIONS: false
 
   mysql:
     name: MySQL
@@ -121,16 +122,17 @@ jobs:
         run: composer install --no-interaction --no-suggest --no-progress --no-scripts
 
       - name: Unit tests
-        run: vendor/bin/pest tests/Unit
+        run: composer run test:parallel -- tests/Unit
         env:
           DB_HOST: UNIT_NO_DB
           SKIP_MIGRATIONS: true
 
       - name: Integration tests
-        run: vendor/bin/pest tests/Integration
+        run: |
+          composer run test:parallel -- tests/Integration
+          echo $DB_HOST
         env:
-          DB_PORT: ${{ job.services.database.ports[3306] }}
-          DB_USERNAME: root
+          SKIP_MIGRATIONS: false
 
   mariadb:
     name: MariaDB
@@ -183,16 +185,17 @@ jobs:
         run: composer install --no-interaction --no-suggest --no-progress --no-scripts
 
       - name: Unit tests
-        run: vendor/bin/pest tests/Unit
+        run: composer run test:parallel -- tests/Unit
         env:
           DB_HOST: UNIT_NO_DB
           SKIP_MIGRATIONS: true
 
       - name: Integration tests
-        run: vendor/bin/pest tests/Integration
+        run: |
+          composer run test:parallel -- tests/Integration
+          echo $DB_HOST
         env:
-          DB_PORT: ${{ job.services.database.ports[3306] }}
-          DB_USERNAME: root
+          SKIP_MIGRATIONS: false
 
   postgresql:
     name: PostgreSQL
@@ -251,10 +254,14 @@ jobs:
         run: composer install --no-interaction --no-suggest --no-progress --no-scripts
 
       - name: Unit tests
-        run: vendor/bin/pest tests/Unit
+        run: composer run test:parallel -- tests/Unit
         env:
           DB_HOST: UNIT_NO_DB
           SKIP_MIGRATIONS: true
 
       - name: Integration tests
-        run: vendor/bin/pest tests/Integration
+        run: |
+          composer run test:parallel -- tests/Integration
+          echo $DB_HOST
+        env:
+          SKIP_MIGRATIONS: false
