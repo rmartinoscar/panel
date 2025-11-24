@@ -61,9 +61,6 @@ jobs:
       - name: Create SQLite file
         run: touch database/testing.sqlite
 
-      - name: Run migrations
-        run: php artisan migrate --force
-
       - name: Unit tests
         run: composer run test:parallel -- tests/Unit
         env:
@@ -132,9 +129,10 @@ jobs:
           SKIP_MIGRATIONS: true
 
       - name: Integration tests
-        run: composer run test:parallel -- tests/Integration
+        run: |
+          composer run test:parallel -- tests/Integration
+          echo {{ job.env.DB_HOST }}
         env:
-          DB_HOST: ${{ job.env.DB_HOST }}
           SKIP_MIGRATIONS: false
 
   mariadb:
@@ -195,9 +193,10 @@ jobs:
           SKIP_MIGRATIONS: true
 
       - name: Integration tests
-        run: composer run test:parallel -- tests/Integration
+        run: |
+          composer run test:parallel -- tests/Integration
+          echo {{ job.env.DB_HOST }}
         env:
-          DB_HOST: ${{ job.env.DB_HOST }}
           SKIP_MIGRATIONS: false
 
   postgresql:
@@ -263,8 +262,8 @@ jobs:
           SKIP_MIGRATIONS: true
 
       - name: Integration tests
-        run: composer run test:parallel -- tests/Integration
+        run: |
+          composer run test:parallel -- tests/Integration
+          echo {{ job.env.DB_HOST }}
         env:
-          DB_HOST: ${{ job.env.DB_HOST }}
           SKIP_MIGRATIONS: false
-
