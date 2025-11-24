@@ -67,11 +67,12 @@ jobs:
       - name: Unit tests
         run: composer run test:parallel -- tests/Unit
         env:
-          DB_HOST: UNIT_NO_DB
           SKIP_MIGRATIONS: true
 
       - name: Integration tests
         run: composer run test:parallel -- tests/Integration
+        env:
+          SKIP_MIGRATIONS: false
 
   mysql:
     name: MySQL
@@ -86,14 +87,15 @@ jobs:
         image: ${{ matrix.database }}
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: testing2
+          MYSQL_DATABASE: testing
         ports:
           - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     env:
       DB_CONNECTION: mysql
       DB_HOST: 127.0.0.1
-      DB_DATABASE: testing2
+      DB_PORT: ${{ job.services.database.ports[3306] }}
+      DB_DATABASE: testing
       DB_USERNAME: root
     steps:
       - name: Code Checkout
@@ -132,8 +134,8 @@ jobs:
       - name: Integration tests
         run: composer run test:parallel -- tests/Integration
         env:
-          DB_PORT: ${{ job.services.database.ports[3306] }}
-          DB_USERNAME: root
+          DB_HOST: ${{ job.env.DB_HOST }}
+          SKIP_MIGRATIONS: false
 
   mariadb:
     name: MariaDB
@@ -148,14 +150,15 @@ jobs:
         image: ${{ matrix.database }}
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: testing1
+          MYSQL_DATABASE: testing
         ports:
           - 3306
         options: --health-cmd="mariadb-admin ping || mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     env:
       DB_CONNECTION: mariadb
       DB_HOST: 127.0.0.1
-      DB_DATABASE: testing1
+      DB_PORT: ${{ job.services.database.ports[3306] }}
+      DB_DATABASE: testing
       DB_USERNAME: root
     steps:
       - name: Code Checkout
@@ -194,8 +197,8 @@ jobs:
       - name: Integration tests
         run: composer run test:parallel -- tests/Integration
         env:
-          DB_PORT: ${{ job.services.database.ports[3306] }}
-          DB_USERNAME: root
+          DB_HOST: ${{ job.env.DB_HOST }}
+          SKIP_MIGRATIONS: false
 
   postgresql:
     name: PostgreSQL
@@ -253,9 +256,6 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --no-suggest --no-progress --no-scripts
 
-      - name: Run migrations
-        run: php artisan migrate --force
-
       - name: Unit tests
         run: composer run test:parallel -- tests/Unit
         env:
@@ -264,4 +264,7 @@ jobs:
 
       - name: Integration tests
         run: composer run test:parallel -- tests/Integration
+        env:
+          DB_HOST: ${{ job.env.DB_HOST }}
+          SKIP_MIGRATIONS: false
 
